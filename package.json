@@ -1,12 +1,13 @@
 {
-  "name": "ant-design-pro",
-  "version": "1.0.0",
+  "name": "manage",
+  "version": "1.0.1",
   "main": "main.js",
   "private": true,
   "description": "An out-of-box UI solution for enterprise applications",
   "scripts": {
     "analyze": "cross-env ANALYZE=1 umi build",
-    "build": "umi build",
+    "build:web": "umi build",
+    "start:web":"umi dev",
     "deploy": "npm run site && npm run gh-pages",
     "dev": "npm run start:dev",
     "fetch:blocks": "pro fetch-blocks --branch=umi@3 && npm run prettier",
@@ -20,7 +21,6 @@
     "lint:prettier": "prettier --check \"**/*\" --end-of-line auto",
     "lint:style": "stylelint --fix \"src/**/*.less\" --syntax less",
     "prettier": "prettier -c --write \"**/*\"",
-    "start": "umi dev",
     "start:dev": "cross-env REACT_APP_ENV=dev MOCK=none umi dev",
     "start:no-mock": "cross-env MOCK=none umi dev",
     "start:no-ui": "cross-env UMI_UI=none umi dev",
@@ -30,7 +30,10 @@
     "test:all": "node ./tests/run-tests.js",
     "test:component": "umi test ./src/components",
     "tsc": "tsc",
-    "electron-start": "umi dev && electron ."
+    "package": "npm-run-all package:*",
+    "package:mac": "electron-packager . --overwrite --platform=darwin --arch=x64 --out=out --icon=public/favicon.png --osx-sign.identity='Developer ID Application: GitHub' --extend-info=assets/mac/info.plist",
+    "package:win": "electron-packager . --overwrite --platform=win32 --arch=ia32 --out=out --icon=public/favicon.png",
+    "start:electron": "electron ."
   },
   "husky": {
     "hooks": {
@@ -84,9 +87,11 @@
     "@umijs/preset-react": "^1.4.8",
     "@umijs/preset-ui": "^2.0.9",
     "chalk": "^3.0.0",
+    "concurrently": "^5.1.0",
     "cross-env": "^7.0.0",
     "cross-port-killer": "^1.1.1",
     "electron": "^8.2.0",
+    "electron-packager": "^14.2.1",
     "enzyme": "^3.11.0",
     "express": "^4.17.1",
     "gh-pages": "^2.0.1",

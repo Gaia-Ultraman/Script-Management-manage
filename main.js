@@ -5,7 +5,11 @@ function createWindow() {
         width: 1024,
         height: 768,
     })
-    win.loadURL('http://localhost:8000/');
+    // win.loadURL('http://localhost:8000/');
+
+    win.loadURL(`file://${__dirname}/dist/index.html`)
+
+    //默认开启调试工具
     // win.webContents.openDevTools()
     win.on('closed', function () {
         win = null
