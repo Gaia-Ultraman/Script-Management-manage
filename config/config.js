@@ -8,6 +8,7 @@ const { winPath } = utils; // preview.pro.ant.design only do not use in your pro
 
 const { ANT_DESIGN_PRO_ONLY_DO_NOT_USE_IN_YOUR_PRODUCTION, REACT_APP_ENV, GA_KEY } = process.env;
 export default defineConfig({
+  title: '中控系统',
   hash: true,
   antd: {},
   analytics: GA_KEY
@@ -25,78 +26,14 @@ export default defineConfig({
     antd: true,
     baseNavigator: true,
   },
-  dynamicImport: {
-    loading: '@/components/PageLoading/index',
-  },
   targets: {
     ie: 11,
   },
   // umi routes: https://umijs.org/zh/guide/router.html
   routes: [
     {
-      path: '/user',
-      component: '../layouts/UserLayout',
-      routes: [
-        {
-          name: 'login',
-          path: '/user/login',
-          component: './user/login',
-        },
-      ],
-    },
-    {
       path: '/',
-      component: '../layouts/SecurityLayout',
-      routes: [
-        {
-          path: '/',
-          component: '../layouts/BasicLayout',
-          authority: ['admin', 'user'],
-          routes: [
-            {
-              path: '/',
-              redirect: '/welcome',
-            },
-            {
-              path: '/welcome',
-              name: 'welcome',
-              icon: 'smile',
-              component: './Welcome',
-            },
-            {
-              path: '/admin',
-              name: 'admin',
-              icon: 'crown',
-              component: './Admin',
-              authority: ['admin'],
-              routes: [
-                {
-                  path: '/admin/sub-page',
-                  name: 'sub-page',
-                  icon: 'smile',
-                  component: './Welcome',
-                  authority: ['admin'],
-                },
-              ],
-            },
-            {
-              name: 'list.table-list',
-              icon: 'table',
-              path: '/list',
-              component: './ListTableList',
-            },
-            {
-              component: './404',
-            },
-          ],
-        },
-        {
-          component: './404',
-        },
-      ],
-    },
-    {
-      component: './404',
+      component: './index.js',
     },
   ],
   // Theme for antd: https://ant.design/docs/react/customize-theme-cn
@@ -140,8 +77,10 @@ export default defineConfig({
     },
   },
   manifest: {
-    basePath: '/',
+    basePath: './',
   },
+  //在这里配置publicPath 生效，chainWebpack里面配置的会被覆盖？不生效
+  publicPath: REACT_APP_ENV === 'pre'?"./":'/',
   proxy: proxy[REACT_APP_ENV || 'dev'],
   chainWebpack: webpackPlugin,
 });
