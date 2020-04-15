@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Checkbox, Button, Card } from "antd"
+import { Checkbox, Button, Card} from "antd"
 import { PlusOutlined } from '@ant-design/icons';
 const { Meta } = Card;
 const styles = require('./index.less')
@@ -11,14 +11,13 @@ export default class App extends React.Component {
     };
 
 
-
     render() {
         const { groups ,devices} = this.state
         for(let i=0;i<60;i++){
             devices.push({ name: "iphone", url: "https://os.alipayobjects.com/rmsportal/QBnOOoLaAfKPirc.png", lastLog: "开机" })
         }
         return <div className={styles.container}>
-            <Checkbox>全选</Checkbox>
+            
             <div className={styles.content}>
                 <div className={styles.groupList}>
                     {groups.map((value) => {
@@ -27,6 +26,7 @@ export default class App extends React.Component {
                     <Button><PlusOutlined style={{ fontSize: 45, color: "rgba(0,0,0,0.3)" }} /></Button>
                 </div>
                 <div className={styles.cardContainer}>
+                <Checkbox>全选</Checkbox>
                     {devices.map((value, index) => {
                         return <Card
                             hoverable
@@ -38,6 +38,7 @@ export default class App extends React.Component {
                     })}
                 </div>
             </div>
+
         </div>
     }
 }
