@@ -1,5 +1,5 @@
 import React, { Component } from "react";
-import { Checkbox, Card, Pagination } from "antd"
+import { Checkbox, Card, Pagination,Modal } from "antd"
  import {ReloadOutlined} from "@ant-design/icons"
 import styles from "./index.less"
 const { Meta } = Card
@@ -9,6 +9,10 @@ export default class MyCard extends React.Component {
     state = {
         page: 1,
         pageSize: 10,
+        visible:false,
+        //放大的视图
+        url:"",
+        name:""
     }
 
     handleCheck = (e, id) => {
@@ -41,7 +45,7 @@ export default class MyCard extends React.Component {
 
     render() {
         const { devices } = this.props
-        const { page, pageSize } = this.state
+        const { page, pageSize,url,name ,visible} = this.state
         return (
             <div className={styles.cardContainer}>
                 <div className={styles.cards}>
@@ -50,7 +54,7 @@ export default class MyCard extends React.Component {
                             return <Card key={value.id}
                                 style={{ width: 150, marginTop: "0.3rem", marginLeft: "0.4rem", marginRight: "0.4rem" }}
                                 cover={
-                                    <div>
+                                    <div onClick={()=>{debugger; this.setState({visible:true,url:"https://gw.alipayobjects.com/zos/rmsportal/JiqGstEfoWAOHiTxclqi.png",name:value.name})}}>
                                         <ReloadOutlined  className={styles.icon}/>
                                         <img
                                             style={{ width: 150, height: 200 }}
@@ -68,6 +72,14 @@ export default class MyCard extends React.Component {
                     }
                 </div>
                 <Pagination defaultCurrent={1} total={devices.length} onChange={this.handlePage} />
+                <Modal
+                title={name}
+                visible={visible}
+                onCancel={()=>{this.setState({visible:false})}}
+                footer={null}
+            >
+                <img src={url} style={{width:"100%"}}></img>
+            </Modal>
             </div>
         );
     }

@@ -77,14 +77,28 @@ export default class App extends React.Component {
 
     //筛选
     handleGroup = (value) => {
+        console.log("value",value)
         const { allDevices } = this.state
         let showDevices = [];
+        //去掉checked属性
+        let cloneAllDevices=allDevices.map(v=>{
+            let temp=JSON.parse(JSON.stringify(v))
+            delete temp.checked;
+            return temp
+        });
+
+        if(value.name=="全部"){
+            this.setState({ showDevices:allDevices, currentGroup: value.name, checked: false })
+            return
+        }
+        
+        
         //filter 返回的子元素是引用类型时，需要深拷贝一下数组，不然会影响原数据
         if (value.type == 1) {
             let reg = new RegExp(value.reg)
-            showDevices = JSON.parse(JSON.stringify(allDevices.filter(v => reg.test(v.id))))
+            showDevices = cloneAllDevices.filter(v => reg.test(v.id))
         } else if (value.type == 2) {
-            showDevices = JSON.parse(JSON.stringify(allDevices.filter(v => { return value.data.indexOf(v.id) != -1 })))
+            showDevices = cloneAllDevices.filter(v => { return value.data.indexOf(v.id) != -1 })
         }
         this.setState({ showDevices, currentGroup: value.name, checked: false })
     }
@@ -136,6 +150,7 @@ export default class App extends React.Component {
         }
         this.setState({
             groups:result,
+            addVisible:false
         })
         this.handleGroup(item)
     }
@@ -181,7 +196,7 @@ export default class App extends React.Component {
         const { groups, allDevices, currentGroup, visible, checked, addVisible, type,showDevices } = this.state
         return <div className={styles.container}>
             <div>
-                <Button type="primary" danger onClick={this.handleModal} className={styles.notice}>删除分组</Button>
+                <Button type="primary" danger onClick={this.handleModal_delete} className={styles.notice}>删除分组</Button>
                 <Checkbox checked={checked} onClick={this.handleCheck}>全选</Checkbox>
             </div>
             <div className={styles.content}>
