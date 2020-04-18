@@ -4,6 +4,8 @@ import { MobileOutlined, DatabaseOutlined, SnippetsOutlined } from '@ant-design/
 import DataNodes from "./data"
 import LogNodes from "./log"
 import PicNodes from "./pic"
+import "./test"
+import styles from "./index.less"
 const { SubMenu } = Menu;
 const { TabPane } = Tabs
 export default class App extends React.Component {

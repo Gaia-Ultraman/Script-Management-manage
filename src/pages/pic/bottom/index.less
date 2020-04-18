@@ -1,0 +1,41 @@
+.container {
+    height: 160px;
+    padding: 10px;
+    display: flex;
+    justify-content: space-between;
+
+    .left {
+        display: flex;
+        justify-content: space-around;
+        flex-direction: column;
+        flex: 2;
+        padding-right: 20px;
+
+        .item {
+            display: flex;
+        }
+    }
+
+    .right {
+        display: flex;
+        justify-content: space-around;
+        flex-direction: column;
+        flex: 3;
+        padding-left: 20px;
+
+        .item {
+            display: flex;
+
+            >input {
+                width: 250px;
+            }
+
+            >span {
+                text-align: center;
+                vertical-align: middle;
+                line-height: 31px;
+            }
+        }
+    }
+
+}
