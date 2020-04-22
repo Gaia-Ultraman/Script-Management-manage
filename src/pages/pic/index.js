@@ -66,36 +66,69 @@ export default class App extends React.Component {
                 console.log("消息返回解析错误:", err)
                 return
             }
-            const {currentGroup,groups,showDevices,allDevices}=this.state
+            const { currentGroup, groups, showDevices, allDevices } = this.state
 
             //获得所有设备，更新设备状态
-            if(result.from && result.from.group =="server"){
-                if(result.data && result.data.cmd =="getAllOnline"){
-                    this.setState({ showDevices: result.data.retMsg,allDevices:result.data.retMsg, currentGroup: "全部", checked: false })
-                }else if(result.data && result.data.cmd =="online"){
+            if (result.from && result.from.group == "server") {
+                if (result.data && result.data.cmd == "getAllOnline") {
+                    this.setState({ showDevices: result.data.retMsg, allDevices: result.data.retMsg, currentGroup: "全部", checked: false })
+                } else if (result.data && result.data.cmd == "online") {
                     message.success(`${result.data.retMsg.name} 上线`)
                     allDevices.push(result.data.retMsg)
                     this.setState({
-                        allDevices:JSON.parse(JSON.stringify(allDevices))
-                    },()=>{
-                        this.handleGroup(groups.filter(v=>v.name==currentGroup)[0])
+                        allDevices: JSON.parse(JSON.stringify(allDevices))
+                    }, () => {
+                        this.handleGroup(groups.filter(v => v.name == currentGroup)[0])
                     })
-                    
-                }else if(result.data && result.data.cmd =="offline"){
+
+                } else if (result.data && result.data.cmd == "offline") {
                     message.error(`${result.data.retMsg.name} 下线`)
                     this.setState({
-                        allDevices:JSON.parse(JSON.stringify(allDevices.filter(v=>v.id!=result.data.retMsg.id)))
-                    },()=>{
-                        this.handleGroup(groups.filter(v=>v.name==currentGroup)[0])
+                        allDevices: JSON.parse(JSON.stringify(allDevices.filter(v => v.id != result.data.retMsg.id)))
+                    }, () => {
+                        this.handleGroup(groups.filter(v => v.name == currentGroup)[0])
                     })
                 }
             }
-            //获取图片
-            else if( result.from && result.from.group =="phone"){
-                
-            }
+            //接受来自手机的消息
+            else if (result.from && result.from.group == "phone") {
 
-            console.log('Message from server ', event.data, this.state);
+                if(result.data.msgType != 'base64'){
+                        //全部设备里面的截图更新
+                        allDevices.forEach(v => {
+                            if (v.id == result.from.id) {
+                                v.des = JSON.stringify(result.data.retMsg)
+                            }
+                        })
+                        //当前显示设备里的截图更新
+                        showDevices.forEach(v => {
+                            if (v.id == result.from.id) {
+                                v.des = JSON.stringify(result.data.retMsg)
+                            }
+                        })
+                }
+
+                //获取图片
+                if (result.data && result.data.cmd == "updateSnapshot") {
+                    //客户端截图成功
+                    if (result.data.msgType == 'base64') {
+                        //全部设备里面的截图更新
+                        allDevices.forEach(v => {
+                            if (v.id == result.from.id) {
+                                v.src = "data:image/jpeg;base64," + result.data.retMsg
+                            }
+                        })
+                        //当前显示设备里的截图更新
+                        showDevices.forEach(v => {
+                            if (v.id == result.from.id) {
+                                v.src = "data:image/jpeg;base64," + result.data.retMsg
+                            }
+                        })
+                    } 
+                }
+
+                this.forceUpdate()
+            }
         });
         this.ws.addEventListener('error', (event) => {
             console.log('Error', event);
@@ -116,8 +149,8 @@ export default class App extends React.Component {
             message.info("连接已关闭!")
             this.setState({
                 hasConnect: false,
-                showDevices:[],
-                allDevices:[],
+                showDevices: [],
+                allDevices: [],
                 checked: false
             })
         });
@@ -232,8 +265,13 @@ export default class App extends React.Component {
     }
 
     //底部回调的值
-    handleBottomObj = (obj) => {
-        console.log("BottomCB", obj)
+    handleBottomObj = (type,data) => {
+        const {showDevices}=this.state
+        let ids=showDevices.filter(v=> v.checked).map(v=>v.id)
+        console.log("BottomCB", type,data)
+        if(type=="执行终端命令"){
+            this.sendMessage({codeType:"system",cmd:"runTerminalCmd",TerminalCmd:data},{ group: "phone", id : ids})
+        }
     }
 
 
@@ -244,7 +282,7 @@ export default class App extends React.Component {
             message.error("未连接，执行失败！")
             return
         }
-        let from = { group: "console", id: tempId }
+        let from = { group: "console", id: tempId.toString() }
         this.ws && this.ws.send(JSON.stringify({
             from,
             data,
@@ -272,7 +310,7 @@ export default class App extends React.Component {
 
     //获取所有设备
     getAllDevices = () => {
-        this.sendMessage({ cmd: "getAllOnline" },{ group: "server" })
+        this.sendMessage({ cmd: "getAllOnline" }, { group: "server" })
     }
 
     //滑动条
@@ -287,7 +325,7 @@ export default class App extends React.Component {
                 <div>
                     <Button type="primary" danger onClick={this.handleModal_delete} className={styles.notice}>删除分组</Button>
                     <Checkbox checked={checked} onClick={this.handleCheck}>全选</Checkbox>
-                    <span style={{ paddingLeft:"30px"}}>当前分组数量:<span style={{ color: "green",fontSize:20 }}>{showDevices.length}</span></span>
+                    <span style={{ paddingLeft: "30px" }}>当前分组数量:<span style={{ color: "green", fontSize: 20 }}>{showDevices.length}</span></span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center" }}>调节屏幕亮度:<Slider className={styles.slider} defaultValue={30} max={100} min={0} onAfterChange={this.handleSlider} /></div>
                 <div className={styles.status}>

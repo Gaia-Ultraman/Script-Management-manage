@@ -24,12 +24,13 @@ export default class Bottom extends React.Component {
 
     render() {
         const { scriptData, centerControlData, terminalData, downLoadUrl, downLoadPath, scriptName,param} = this.state
+        const {callBack}=this.props
         return (
             <div className={styles.container}>
                 <div className={styles.left}>
                     <div className={styles.item}> <Button>向脚本发送信息</Button>&nbsp;&nbsp;<Input value={scriptData} onChange={(e) => { this.setState({ scriptData: e.target.value }) }} /></div>
                     <div className={styles.item}> <Button>执行中控命令</Button>&nbsp;&nbsp;<Input value={centerControlData} onChange={(e) => { this.setState({ centerControlData: e.target.value }) }} /></div>
-                    <div className={styles.item}> <Button>执行终端命令</Button>&nbsp;&nbsp;<Input value={terminalData} onChange={(e) => { this.setState({ terminalData: e.target.value }) }} /></div>
+                    <div className={styles.item}> <Button onClick={()=>{callBack("执行终端命令",terminalData)}}>执行终端命令</Button>&nbsp;&nbsp;<Input value={terminalData} onChange={(e) => { this.setState({ terminalData: e.target.value }) }} /></div>
                 </div>
                 <div className={styles.right}>
                     <div className={styles.item}>
