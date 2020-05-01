@@ -1,6 +1,7 @@
 import React, { Component } from "react";
 import { Checkbox, Card, Pagination, Modal, message,Tooltip  } from "antd"
 import { ReloadOutlined } from "@ant-design/icons"
+import {getLocalPic,setLocalPic} from "@/utils/picture"
 import styles from "./index.less"
 const { Meta } = Card
 
@@ -29,20 +30,21 @@ export default class MyCard extends React.Component {
         onChecked(JSON.parse(JSON.stringify(devices)))
     }
 
-    handlePage = (page, pageSize) => {
-        this.setState({
-            page, pageSize
-        })
-        this.sendData({ type: "getPic", data: devices.slice((page - 1) * pageSize, page * pageSize).map(v => v.id) })
-    }
+    // handlePage = (page, pageSize) => {
+    //     this.setState({
+    //         page, pageSize
+    //     })
+    //     this.sendData({ type: "getPic", data: devices.slice((page - 1) * pageSize, page * pageSize).map(v => v.id) })
+    // }
+    
     sendData = (data, dis) => {
         const { sendFunc } = this.props
         sendFunc(data, dis)
     }
 
     handleAmplification = (value) => {
-        if (value.src) {
-            this.setState({ visible: true, ...value })
+        if (getLocalPic(value.id)) {
+            this.setState({ visible: true, ...value,src:getLocalPic(value.id) })
         } else {
             message.error("没有可以预览的截图！")
         }
@@ -94,11 +96,11 @@ export default class MyCard extends React.Component {
                                 cover={
                                     <div onClick={() => { this.handleAmplification(value) }}>
                                         <ReloadOutlined className={styles.icon} onClick={(e) => this.refresh(e, value.id)} />
-                                        {value.src ? <img
-                                            style={{ width: 165, height: 200 }}
+                                        {getLocalPic(value.id) ? <img
+                                            style={{ width: 160, height: 280 }}
                                             alt="屏幕截图"
-                                            src={value.src}
-                                        /> : <div style={{ width: 165, height: 200, display: "flex", justifyContent: "center", alignItems: "center" }}>
+                                            src={getLocalPic(value.id)}
+                                        /> : <div style={{ width: 160, height: 280, display: "flex", justifyContent: "center", alignItems: "center" }}>
                                                 未获取截图
                                             </div>
                                         }

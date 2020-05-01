@@ -4,6 +4,7 @@ import Cards from "./cards"
 import Bottom from "./bottom"
 import { PlusOutlined } from '@ant-design/icons';
 import { getGroup, setGroup, deletGroup } from "@/utils/group"
+import { getLocalPic, setLocalPic } from "@/utils/picture"
 
 const { Option } = Select;
 
@@ -11,6 +12,10 @@ const styles = require('./index.less')
 
 export default class App extends React.Component {
     ws = null
+    //接受到的消息列表 缓存一下消息内容
+    results = []
+    timer = null
+
     state = {
         tempId: new Date().getTime(),
         //服务端连接状态
@@ -44,10 +49,57 @@ export default class App extends React.Component {
         document.title = "ID:" + this.state.tempId
         let url = localStorage.getItem("url")
         this.setState({ url })
+
+        this.timer = setInterval(() => {
+            const { showDevices, allDevices } = this.state
+            if (this.results.length) {
+                this.results.forEach(result => {
+                    if (result.data.msgType != 'base64') {
+                        //全部设备里面的截图更新
+                        allDevices.forEach(v => {
+                            if (v.id == result.from.id) {
+                                v.des = JSON.stringify(result.data.retMsg)
+                            }
+                        })
+                        //当前显示设备里的截图更新
+                        showDevices.forEach(v => {
+                            if (v.id == result.from.id) {
+                                v.des = JSON.stringify(result.data.retMsg)
+                            }
+                        })
+                    }
+
+                    //获取图片
+                    if (result.data && result.data.cmd == "updateSnapshot") {
+                        //客户端截图成功
+                        if (result.data.msgType == 'base64') {
+                            //全部设备里面的截图更新
+                            // allDevices.forEach(v => {
+                            //     if (v.id == result.from.id) {
+                            //         v.src = "data:image/jpeg;base64," + result.data.retMsg
+                            //     }
+                            // })
+                            // //当前显示设备里的截图更新
+                            // showDevices.forEach(v => {
+                            //     if (v.id == result.from.id) {
+                            //         v.src = "data:image/jpeg;base64," + result.data.retMsg
+                            //     }
+                            // })
+                            setLocalPic(result.from.id, "data:image/jpeg;base64," + result.data.retMsg)
+                        }
+                    }
+                })
+                this.setState({
+                    allDevices: JSON.parse(JSON.stringify(allDevices)),
+                    showDevices: JSON.parse(JSON.stringify(showDevices)),
+                })
+            }
+        }, 1000)
     }
 
     componentWillUnmount() {
         this.state.hasConnect && this.ws.close()
+        this.timer && clearInterval(this.timer)
     }
 
     //连接SOCKET
@@ -93,41 +145,8 @@ export default class App extends React.Component {
             //接受来自手机的消息
             else if (result.from && result.from.group == "phone") {
 
-                if(result.data.msgType != 'base64'){
-                        //全部设备里面的截图更新
-                        allDevices.forEach(v => {
-                            if (v.id == result.from.id) {
-                                v.des = JSON.stringify(result.data.retMsg)
-                            }
-                        })
-                        //当前显示设备里的截图更新
-                        showDevices.forEach(v => {
-                            if (v.id == result.from.id) {
-                                v.des = JSON.stringify(result.data.retMsg)
-                            }
-                        })
-                }
+                this.results.push(result)
 
-                //获取图片
-                if (result.data && result.data.cmd == "updateSnapshot") {
-                    //客户端截图成功
-                    if (result.data.msgType == 'base64') {
-                        //全部设备里面的截图更新
-                        allDevices.forEach(v => {
-                            if (v.id == result.from.id) {
-                                v.src = "data:image/jpeg;base64," + result.data.retMsg
-                            }
-                        })
-                        //当前显示设备里的截图更新
-                        showDevices.forEach(v => {
-                            if (v.id == result.from.id) {
-                                v.src = "data:image/jpeg;base64," + result.data.retMsg
-                            }
-                        })
-                    } 
-                }
-
-                this.forceUpdate()
             }
         });
         this.ws.addEventListener('error', (event) => {
@@ -265,12 +284,32 @@ export default class App extends React.Component {
     }
 
     //底部回调的值
-    handleBottomObj = (type,data) => {
-        const {showDevices}=this.state
-        let ids=showDevices.filter(v=> v.checked).map(v=>v.id)
-        console.log("BottomCB", type,data)
+    handleBottomObj = (type, data) => {
+        const { showDevices } = this.state
+        let ids = showDevices.filter(v => v.checked).map(v => v.id)
+        console.log("BottomCB", type, data)
         if(type=="执行终端命令"){
+            if (!data || data == '') return message.error("命令不能是空");
             this.sendMessage({codeType:"system",cmd:"runTerminalCmd",TerminalCmd:data},{ group: "phone", id : ids})
+        }else if (type=="一键启动"){
+            if (!data.scriptName || data.scriptName == '') return message.error("脚本名称不能是空");
+            this.sendMessage({codeType:"touchelf",cmd:"runScript",scriptName:data.scriptName,UI:data.param},{ group: "phone", id : ids})
+        }else if (type=="一键停止") {
+            this.sendMessage({codeType:"touchelf",cmd:"stopScript"},{group: "phone", id : ids})
+        }else if(type=="执行中控命令"){
+            if (!data || data == '') return message.error("命令不能是空");
+            let msg = {}
+            try {
+                msg = JSON.parse(data);
+                if(!msg.codeType || !msg.cmd) return message.error("格式错误");
+                this.sendMessage(msg,{group: "phone", id : ids})
+            } catch (err) {
+                return message.error("格式错误");
+            }
+        }else if(type=="一键下载"){
+            if (!data.downLoadUrl) return message.error("下载链接不能是空");
+            data.downLoadPath=data.downLoadPath?data.downLoadPath:'/var/WebConsole/downCache/';
+            this.sendMessage({codeType:"file",cmd:"curlDown",url:data.downLoadUrl,path:data.downLoadPath},{group: "phone", id : ids})
         }
     }
 
