@@ -1,41 +1,17 @@
+@import '~antd/lib/style/themes/default.less';
 .container {
     height: 160px;
-    padding: 10px;
-    display: flex;
-    justify-content: space-between;
-
-    .left {
+    padding: 10px 10px 10px 96px;
+    .item {
         display: flex;
-        justify-content: space-around;
-        flex-direction: column;
-        flex: 2;
-        padding-right: 20px;
-
-        .item {
-            display: flex;
-        }
+        padding: 5px;
     }
-
-    .right {
+    .extendItem {
         display: flex;
-        justify-content: space-around;
-        flex-direction: column;
-        flex: 3;
-        padding-left: 20px;
-
-        .item {
-            display: flex;
-
-            >input {
-                width: 250px;
-            }
-
-            >span {
-                text-align: center;
-                vertical-align: middle;
-                line-height: 31px;
-            }
-        }
+        align-items: center;
+        justify-content: center;
+        font-size: 15px;
+        color: @primary-color;
+        cursor: pointer;
     }
-
 }

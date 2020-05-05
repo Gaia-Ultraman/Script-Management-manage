@@ -67,6 +67,7 @@ export default class App extends React.Component {
                                 v.des = JSON.stringify(result.data.retMsg)
                             }
                         })
+                        console.log("allDevices",allDevices)
                     }
 
                     //获取图片
