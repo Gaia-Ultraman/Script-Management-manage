@@ -200,7 +200,7 @@ export default class App extends React.Component {
         });
 
         if (value.name == "全部") {
-            this.setState({ showDevices: allDevices, currentGroup: value.name, checked: false })
+            this.setState({ showDevices: cloneAllDevices, currentGroup: value.name, checked: false })
             return
         }
 
