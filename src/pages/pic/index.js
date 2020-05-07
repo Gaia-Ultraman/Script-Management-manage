@@ -27,12 +27,14 @@ export default class App extends React.Component {
         showDevices: [],
         //目前选中的group
         currentGroup: "全部",
+        //全选盒子
+        checked: false,
+
         //删除模态框
         visible: false,
         //需要删除的分组的名字
         name: "",
-        //全选盒子
-        checked: false,
+
 
         //添加分组模态框
         addVisible: false,
@@ -67,7 +69,7 @@ export default class App extends React.Component {
                                 v.des = JSON.stringify(result.data.retMsg)
                             }
                         })
-                        console.log("allDevices",allDevices)
+                        console.log("allDevices", allDevices)
                     }
 
                     //获取图片
@@ -178,14 +180,22 @@ export default class App extends React.Component {
     }
 
     //筛选
-    handleGroup = (value) => {
+    handleGroup = (value,removeCheck) => {
         console.log("value", value)
-        const { allDevices } = this.state
-        let showDevices = [];
-        //去掉checked属性
+        const { allDevices ,showDevices} = this.state
+        let newShowDevices = [];
+        //是否需要去掉checked属性
         let cloneAllDevices = allDevices && allDevices.map(v => {
             let temp = JSON.parse(JSON.stringify(v))
-            delete temp.checked;
+            if (removeCheck) {
+                delete temp.checked
+            }else{
+                showDevices.forEach(v1=>{
+                    if(v1.id==temp.id){
+                        temp.checked=v1.checked
+                    }
+                })
+            };
             return temp
         });
 
@@ -197,12 +207,13 @@ export default class App extends React.Component {
 
         //filter 返回的子元素是引用类型时，需要深拷贝一下数组，不然会影响原数据
         if (value.type == 1) {
+            //TODO
             let reg = new RegExp(value.reg)
-            showDevices = cloneAllDevices.filter(v => reg.test(v.id))
+            newShowDevices = cloneAllDevices.filter(v => reg.test(v.id))
         } else if (value.type == 2) {
-            showDevices = cloneAllDevices.filter(v => { return value.data.indexOf(v.id) != -1 })
+            newShowDevices = cloneAllDevices.filter(v => { return value.data.indexOf(v.id) != -1 })
         }
-        this.setState({ showDevices, currentGroup: value.name, checked: false })
+        this.setState({ showDevices:newShowDevices, currentGroup: value.name, checked: false })
     }
 
     //==========================删除模态框==========================
@@ -254,7 +265,7 @@ export default class App extends React.Component {
             groups: result,
             addVisible: false
         })
-        this.handleGroup(item)
+        this.handleGroup(item,true)
     }
 
     handleModal_add = () => {
@@ -289,28 +300,28 @@ export default class App extends React.Component {
         const { showDevices } = this.state
         let ids = showDevices.filter(v => v.checked).map(v => v.id)
         console.log("BottomCB", type, data)
-        if(type=="执行终端命令"){
+        if (type == "执行终端命令") {
             if (!data || data == '') return message.error("命令不能是空");
-            this.sendMessage({codeType:"system",cmd:"runTerminalCmd",TerminalCmd:data},{ group: "phone", id : ids})
-        }else if (type=="一键启动"){
+            this.sendMessage({ codeType: "system", cmd: "runTerminalCmd", TerminalCmd: data }, { group: "phone", id: ids })
+        } else if (type == "一键启动") {
             if (!data.scriptName || data.scriptName == '') return message.error("脚本名称不能是空");
-            this.sendMessage({codeType:"touchelf",cmd:"runScript",scriptName:data.scriptName,UI:data.param},{ group: "phone", id : ids})
-        }else if (type=="一键停止") {
-            this.sendMessage({codeType:"touchelf",cmd:"stopScript"},{group: "phone", id : ids})
-        }else if(type=="执行中控命令"){
+            this.sendMessage({ codeType: "touchelf", cmd: "runScript", scriptName: data.scriptName, UI: data.param }, { group: "phone", id: ids })
+        } else if (type == "一键停止") {
+            this.sendMessage({ codeType: "touchelf", cmd: "stopScript" }, { group: "phone", id: ids })
+        } else if (type == "执行中控命令") {
             if (!data || data == '') return message.error("命令不能是空");
             let msg = {}
             try {
                 msg = JSON.parse(data);
-                if(!msg.codeType || !msg.cmd) return message.error("格式错误");
-                this.sendMessage(msg,{group: "phone", id : ids})
+                if (!msg.codeType || !msg.cmd) return message.error("格式错误");
+                this.sendMessage(msg, { group: "phone", id: ids })
             } catch (err) {
                 return message.error("格式错误");
             }
-        }else if(type=="一键下载"){
+        } else if (type == "一键下载") {
             if (!data.downLoadUrl) return message.error("下载链接不能是空");
-            data.downLoadPath=data.downLoadPath?data.downLoadPath:'/var/WebConsole/downCache/';
-            this.sendMessage({codeType:"file",cmd:"curlDown",url:data.downLoadUrl,path:data.downLoadPath},{group: "phone", id : ids})
+            data.downLoadPath = data.downLoadPath ? data.downLoadPath : '/var/WebConsole/downCache/';
+            this.sendMessage({ codeType: "file", cmd: "curlDown", url: data.downLoadUrl, path: data.downLoadPath }, { group: "phone", id: ids })
         }
     }
 
@@ -355,7 +366,8 @@ export default class App extends React.Component {
 
     //滑动条
     handleSlider = (value) => {
-        this.sendMessage({ codeType: "device", cmd: "setScreenBrightness", brightness: value }, { group: "phone", id: "all" })
+        const { showDevices } = this.state
+        this.sendMessage({ codeType: "device", cmd: "setScreenBrightness", brightness: value }, { group: "phone", id: showDevices.filter(v => v.checked).map(v => v.id) })
     }
 
     render() {
@@ -363,8 +375,8 @@ export default class App extends React.Component {
         return <div className={styles.container}>
             <div className={styles.header}>
                 <div>
-                    <Button type="primary" danger onClick={this.handleModal_delete} className={styles.notice}>删除分组</Button>
-                    <Checkbox checked={checked} onClick={this.handleCheck}>全选</Checkbox>
+                    {/* <Button type="primary" danger onClick={this.handleModal_delete} className={styles.notice}>删除分组</Button> */}
+                    <Checkbox style={{ marginLeft: "96px" }} checked={checked} onClick={this.handleCheck}>全选</Checkbox>
                     <span style={{ paddingLeft: "30px" }}>当前分组数量:<span style={{ color: "green", fontSize: 20 }}>{showDevices.length}</span></span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center" }}>调节屏幕亮度:<Slider className={styles.slider} defaultValue={30} max={100} min={0} onAfterChange={this.handleSlider} /></div>
@@ -379,14 +391,11 @@ export default class App extends React.Component {
 
                 <div className={styles.groupList}>
                     {groups.map((value, i) => {
-                        return <Button type={currentGroup == value.name ? "primary" : null} key={i} onClick={() => { this.handleGroup(value) }} >{value.name}</Button>
+                        return <Button type={currentGroup == value.name ? "primary" : null} key={i} onClick={() => { this.handleGroup(value,true) }} >{value.name}</Button>
                     })}
                     <Button onClick={this.handleModal_add}><PlusOutlined style={{ fontSize: 45, color: "rgba(0,0,0,0.3)" }} /></Button>
                 </div>
-
-
                 <Cards devices={showDevices} onChecked={this.handleCardCheck} sendFunc={this.sendMessage} />
-
             </div>
 
             <Bottom callBack={this.handleBottomObj} sendFunc={this.sendMessage} />
