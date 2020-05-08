@@ -92,7 +92,7 @@ export default class MyCard extends React.Component {
                     {
                         devices.map(value => {
                             return <Card key={value.id}
-                                style={{ width: 165, marginTop: "0.3rem", marginLeft: "0.4rem", marginRight: "0.4rem" }}
+                                style={{ width: 165, marginTop: "0.3rem", marginLeft: "0.3rem", marginRight: "0.3rem" }}
                                 cover={
                                     <div onClick={() => { this.handleAmplification(value) }}>
                                         <ReloadOutlined className={styles.icon} onClick={(e) => this.refresh(e, value.id)} />
