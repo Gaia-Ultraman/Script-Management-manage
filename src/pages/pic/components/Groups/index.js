@@ -33,7 +33,7 @@ export default class Groups extends React.Component {
     }
     handleOk=()=>{
         this.showModal()
-        this.setState
+        // this.setState
     }
 
 
