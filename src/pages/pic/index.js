@@ -39,6 +39,7 @@ export default class App extends React.Component {
 
         this.timer = setInterval(() => {
             const { showDevices, allDevices } = this.state
+            console.log("this.results",this.results)
             if (this.results.length) {
                 this.results.forEach(result => {
                     if (result.data.msgType != 'base64') {
