@@ -219,7 +219,7 @@ export default class App extends React.Component {
     }
 
     //底部回调的值
-    handleBottomObj = (type, data) => {
+    handleBottomObj = (msg) => {
         const { showDevices } = this.state
         let ids = showDevices.filter(v => v.checked).map(v => v.id)
         if (ids.length<1) return message.error("未选择设备")

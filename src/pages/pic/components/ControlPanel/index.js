@@ -7,7 +7,7 @@ import styles from "./index.less"
 const keyMSleep=0;  // keyClike 按下时间
 export default class ControlPanel extends React.Component {
 
-    //记得备注每个参数是什么得值
+    // 记得备注每个参数是什么得值
     state = {
         extend         :"触摸",        // 展开 收起
 
