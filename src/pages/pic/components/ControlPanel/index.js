@@ -4,7 +4,7 @@ import { DownOutlined, UpOutlined } from "@ant-design/icons"
 const { Option } = Select
 import styles from "./index.less"
 
-export default class Bottom extends React.Component {
+export default class ControlPanel extends React.Component {
 
     //记得备注每个参数是什么得值
     state = {

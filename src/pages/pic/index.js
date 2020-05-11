@@ -16,7 +16,6 @@ export default class App extends React.Component {
     //接受到的消息列表 缓存一下消息内容
     results = []
     timer = null
-
     state = {
         tempId: new Date().getTime(),
         //服务端连接状态
@@ -31,8 +30,8 @@ export default class App extends React.Component {
         checked: false,
         //服务端连接
         url: "",
-
     };
+
     componentDidMount() {
         document.title = "ID:" + this.state.tempId
         let url = localStorage.getItem("url")
