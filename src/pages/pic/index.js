@@ -39,7 +39,6 @@ export default class App extends React.Component {
 
         this.timer = setInterval(() => {
             const { showDevices, allDevices } = this.state
-            console.log("this.results",this.results)
             if (this.results.length) {
                 this.results.forEach(result => {
                     if (result.data.msgType != 'base64') {
@@ -57,11 +56,9 @@ export default class App extends React.Component {
                                     if (result.data.cmd=="ret_runTerminalCmd"){
                                         let str=result.data.retMsg
                                         v.des=str.replace(/\n/g,"\r\n")
-                                        message.error("1")
-                                        return
+                                    }else{
+                                        v.des = result.data.retMsg
                                     }
-                                    v.des = result.data.retMsg
-                                    return
                                 }
                                 v.des = JSON.stringify(result.data.retMsg)
                             }
@@ -93,6 +90,7 @@ export default class App extends React.Component {
                     showDevices: JSON.parse(JSON.stringify(showDevices)),
                 })
             }
+            this.results=[]
         }, 1000)
     }
 
