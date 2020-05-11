@@ -32,8 +32,11 @@ export default class Groups extends React.Component {
         })
     }
     handleOk=()=>{
+        const { handleBack } = this.props
         this.showModal()
-        this.setState
+        this.setState({
+            currentGroup: getGroup()[0],
+        },()=>{handleBack(this.state.currentGroup)})
     }
 
 
