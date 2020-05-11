@@ -1,13 +1,12 @@
 .container {
     height: 100%;
     padding: 0 1rem;
-    display: flex;
-    flex-direction: column;
+    overflow: auto;
     .header{
         display: flex;
         justify-content: space-between;
         .slider{
-            width: 300px;
+            width: 200px;
             margin-right: 20px;
         }
         .status{
@@ -25,38 +24,14 @@
             margin-right: 16px;
         }
     .content {
-        padding-top: 1rem;
+        padding-top: 5px;
         display: flex;
-        flex: 1;
+        height: 756px;
         overflow: hidden;
-        .groupList {
-            width: 6rem;
-            padding-right: 1rem;
-            overflow: auto;
-
-            :global {
-                .ant-btn {
-                    white-space: normal;
-                    height: auto;
-                    min-width: 80px;
-                }
-            }
-        }
-
-        .groupList>button {
-            margin: 0.5rem 0;
-        }
-
-        .groupList>button:nth-child(1) {
-            margin-top: 0 !important;
-        }
-
-        
     }
 
     
 }
-
 
 .item {
     margin-bottom: 20px;
