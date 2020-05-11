@@ -77,7 +77,7 @@ export default class ControlPanel extends React.Component {
                                 sendCmd({ codeType: "touchelf", cmd: "runScript", scriptName, UI: (scriptUI && scriptUI != "") ? scriptUI : null })
                             }}>运行脚本</Button>
                             <Input placeholder="脚本名称" value={scriptName} onChange={(e) => { this.setState({ scriptName: e.target.value }) }} />
-                            <Input placeholder="UI参数 用;分割" value={scriptName} onChange={(e) => { this.setState({ scriptUI: e.target.value }) }} />
+                            <Input placeholder="UI参数 用;分割" value={scriptUI} onChange={(e) => { this.setState({ scriptUI: e.target.value }) }} />
                         </div>
 
                         <Button onClick={() => {
@@ -97,7 +97,6 @@ export default class ControlPanel extends React.Component {
 
                 {
                     extend == "文件" ? <div className={styles.item}>
-
                         <div style={{ width: "45%" }}>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onClick={() => {
@@ -308,7 +307,7 @@ export default class ControlPanel extends React.Component {
                                 if (!uninstallDeb || uninstallDeb == "") return message.error("deb包名不能为空")
                                 sendCmd({ codeType: "system", cmd: "runTerminalCmd", TerminalCmd: "dpkg -P " + uninstallDeb })
                             }}>卸载deb</Button>
-                            <Input placeholder="deb包名" value={uninstallDeb} onChange={(e) => { this.setState({ uninstallBid: e.target.value }) }} />
+                            <Input placeholder="deb包名" value={uninstallDeb} onChange={(e) => { this.setState({uninstallDeb: e.target.value }) }} />
                         </div>
                         <Button onClick={() => {
                             sendCmd({ codeType: "system", cmd: "runTerminalCmd", TerminalCmd: "dpkg --get-selections" })
