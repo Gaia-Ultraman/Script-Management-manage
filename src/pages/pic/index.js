@@ -42,19 +42,29 @@ export default class App extends React.Component {
             if (this.results.length) {
                 this.results.forEach(result => {
                     if (result.data.msgType != 'base64') {
-                        //全部设备里面的截图更新
+                        //全部设备里面的日志更新
                         allDevices.forEach(v => {
                             if (v.id == result.from.id) {
                                 v.des = JSON.stringify(result.data.retMsg)
                             }
                         })
-                        //当前显示设备里的截图更新
+                        // 当前设备里的实时日志更新
                         showDevices.forEach(v => {
                             if (v.id == result.from.id) {
+                                var msgType=result.data.msgType;
+                                if (msgType && (msgType=="string" || msgType=="number" || msgType=="boolean" )){
+                                    if (result.data.cmd=="ret_runTerminalCmd"){
+                                        let str=result.data.retMsg
+                                        v.des=str.replace(/\n/g,"\r\n")
+                                        message.error("1")
+                                        return
+                                    }
+                                    v.des = result.data.retMsg
+                                    return
+                                }
                                 v.des = JSON.stringify(result.data.retMsg)
                             }
                         })
-                        console.log("allDevices", allDevices)
                     }
 
                     //获取图片
@@ -118,7 +128,7 @@ export default class App extends React.Component {
                     this.setState({
                         allDevices: JSON.parse(JSON.stringify(allDevices))
                     }, () => {
-                        this.handleGroup(groups.filter(v => v.name == currentGroup.name)[0])
+                        if (groups) this.handleGroup(groups.filter(v => v.name == currentGroup.name)[0])
                     })
 
                 } else if (result.data && result.data.cmd == "offline") {
@@ -126,7 +136,7 @@ export default class App extends React.Component {
                     this.setState({
                         allDevices: JSON.parse(JSON.stringify(allDevices.filter(v => v.id != result.data.retMsg.id)))
                     }, () => {
-                        this.handleGroup(groups.filter(v => v.name == currentGroup.name)[0])
+                        if (groups) this.handleGroup(groups.filter(v => v.name == currentGroup.name)[0])
                     })
                 }
             }
