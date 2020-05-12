@@ -59,8 +59,9 @@ export default class App extends React.Component {
                                     }else{
                                         v.des = result.data.retMsg
                                     }
+                                }else{
+                                    v.des = JSON.stringify(result.data.retMsg)
                                 }
-                                v.des = JSON.stringify(result.data.retMsg)
                             }
                         })
                     }
