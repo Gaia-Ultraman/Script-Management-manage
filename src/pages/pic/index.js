@@ -4,7 +4,7 @@ import Cards from "./components/Cards"
 import ControlPanel from "./components/ControlPanel"
 import Groups from "./components/Groups"
 import { PlusOutlined } from '@ant-design/icons';
-import { getGroup, setGroup, deletGroup } from "@/utils/group"
+import { getGroup, deletGroup } from "@/utils/group"
 import { getLocalPic, setLocalPic } from "@/utils/picture"
 
 const { Option } = Select;

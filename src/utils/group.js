@@ -1,6 +1,6 @@
 import{zip,unzip} from "./gzip"
 //type 为1是正则匹配， 为2时为手动勾选的   [{name:"例子",type:2,data:["id-1","id-2"]}];
-let defaultGroup=[{name:"全部",type:1,reg:"/\d/g"}];
+let defaultGroup=[{name:"全部",type:1,regs:{}}];
 function getGroup(){
     try{
         let temp=localStorage.getItem("group")
@@ -17,19 +17,27 @@ function getGroup(){
     }
 }
 
+//设置分组，已有该分组则有编辑，没有则为添加
 function setGroup(obj){
     try{
         let temp=localStorage.getItem("group"),groups=[];
+        let key=null;
         if(temp){
             groups=JSON.parse(unzip(temp))
         }else{
             groups=JSON.parse(JSON.stringify(defaultGroup))
         }
 
-        if(groups.filter(v=>v.name==obj.name).length){
-            throw new Error("重复命名！");
+        groups.forEach((v,i)=>{
+            if(v.name==obj.name){
+                key=i
+            }
+        })
+        if(key){
+            groups[key]=obj
+        }else{
+            groups.push(obj)
         }
-        groups.push(obj)
         localStorage.setItem('group',zip(JSON.stringify(groups)))
         return groups
     }catch(err){
