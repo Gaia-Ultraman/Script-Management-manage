@@ -100,7 +100,7 @@ export default class App extends React.Component {
             try {
                 result = JSON.parse(event.data)
             } catch (err) {
-                message.error("消息返回解析错误:", err)
+                message.error("返回消息解析错误:", err)
                 return
             }
             const { currentGroup, groups, showDevices, allDevices } = this.state
@@ -115,7 +115,7 @@ export default class App extends React.Component {
                     this.setState({
                         allDevices: JSON.parse(JSON.stringify(allDevices))
                     }, () => {
-                        if (groups) this.handleGroup(groups.filter(v => v.name == currentGroup.name)[0])
+                        this.handleGroup(groups.filter(v => v.name == currentGroup.name)[0])
                     })
 
                 } else if (result.data && result.data.cmd == "offline") {
@@ -123,7 +123,7 @@ export default class App extends React.Component {
                     this.setState({
                         allDevices: JSON.parse(JSON.stringify(allDevices.filter(v => v.id != result.data.retMsg.id)))
                     }, () => {
-                        if (groups) this.handleGroup(groups.filter(v => v.name == currentGroup.name)[0])
+                        this.handleGroup(groups.filter(v => v.name == currentGroup.name)[0])
                     })
                 }
             }

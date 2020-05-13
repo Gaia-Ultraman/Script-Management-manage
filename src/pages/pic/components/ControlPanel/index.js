@@ -5,7 +5,7 @@ const { Option } = Select
 import styles from "./index.less"
 const tips = ["文件", "系统", "app", "设备", "deb", "客户端"]
 
-const keyMSleep = 0;  // keyClike 按下时间
+var keyMSleep = 0;  // keyClike 按下时间
 export default class ControlPanel extends React.Component {
     // 记得备注每个参数是什么得值
     state = {
@@ -69,12 +69,14 @@ export default class ControlPanel extends React.Component {
                         }} >{v}{extend == v ? <DownOutlined /> : <UpOutlined />}</p>
                     })}
                 </div>
+                
                 {
                     extend == "触摸" ? <div className={styles.item}>
                         <div style={{ display: "flex" }}>
                             <Button onClick={() => {
-                                if (!scriptName || scriptName == "") return message.error("脚本名称不能为空");
-                                sendCmd({ codeType: "touchelf", cmd: "runScript", scriptName, UI: (scriptUI && scriptUI != "") ? scriptUI : null })
+                                if (!scriptName) return message.error("脚本名称不能为空");
+                                if (scriptUI) sendCmd({ codeType: "touchelf", cmd: "runScript", scriptName, UI: scriptUI})
+                                else sendCmd({codeType: "touchelf", cmd: "runScript", scriptName})
                             }}>运行脚本</Button>
                             <Input placeholder="脚本名称" value={scriptName} onChange={(e) => { this.setState({ scriptName: e.target.value }) }} />
                             <Input placeholder="UI参数 用;分割" value={scriptUI} onChange={(e) => { this.setState({ scriptUI: e.target.value }) }} />
@@ -100,8 +102,9 @@ export default class ControlPanel extends React.Component {
                         <div style={{ width: "45%" }}>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onClick={() => {
-                                    if (!downLoadUrl || downLoadUrl == "") return message.error("下载连接不能为空")
-                                    sendCmd({ codeType: "file", cmd: "curlDown", url: downLoadUrl, path: (downLoadPath && downLoadPath != "") ? downLoadPath : null })
+                                    if (!downLoadUrl) return message.error("下载连接不能为空")
+                                    if (downLoadPath) sendCmd({ codeType: "file", cmd: "curlDown", url: downLoadUrl, path:downLoadPath})
+                                    else sendCmd({ codeType: "file", cmd: "curlDown", url: downLoadUrl})
                                 }}>下载文件</Button>
                                 <Input placeholder="下载连接" value={downLoadUrl} onChange={(e) => { this.setState({ downLoadUrl: e.target.value }) }} />
                                 <Input placeholder="保存路径" value={downLoadPath} onChange={(e) => { this.setState({ downLoadPath: e.target.value }) }} />
@@ -117,14 +120,14 @@ export default class ControlPanel extends React.Component {
                         <div style={{ width: "45%" }}>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onClick={() => {
-                                    if (!existsPath || existsPath == "") return message.error("路径不能为空")
+                                    if (!existsPath) return message.error("路径不能为空")
                                     sendCmd({ codeType: "file", cmd: "fileExists", path: existsPath })
                                 }}>文件是否存在</Button>
                                 <Input placeholder="文件/目录 路径" value={existsPath} onChange={(e) => { this.setState({ existsPath: e.target.value }) }} />
                             </div>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onClick={() => {
-                                    if (!removePath || removePath == "") return message.error("路径不能为空")
+                                    if (!removePath) return message.error("路径不能为空")
                                     sendCmd({ codeType: "file", cmd: "removeFile", path: removePath })
                                 }}>删除文件</Button>
                                 <Input placeholder="文件路径" value={removePath} onChange={(e) => { this.setState({ removePath: e.target.value }) }} />
@@ -138,7 +141,7 @@ export default class ControlPanel extends React.Component {
                         <div style={{ width: "35%" }}>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onClick={() => {
-                                    if (!terminalCmd || terminalCmd == "") return message.error("终端命令不能为空")
+                                    if (!terminalCmd) return message.error("终端命令不能为空")
                                     sendCmd({ codeType: "system", cmd: "runTerminalCmd", TerminalCmd: terminalCmd })
                                 }}>执行终端命令</Button>
                                 <Input placeholder="终端命令" value={terminalCmd} onChange={(e) => { this.setState({ terminalCmd: e.target.value }) }} />
@@ -156,7 +159,7 @@ export default class ControlPanel extends React.Component {
                         <div style={{ width: "35%" }}>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onClick={() => {
-                                    if (!processName || processName == "") return message.error("进程名不能为空")
+                                    if (!processName) return message.error("进程名不能为空")
                                     sendCmd({ codeType: "system", cmd: "runTerminalCmd", TerminalCmd: "killall -9 " + processName })
                                 }}>结束进程</Button>
                                 <Input placeholder="进程名称" value={processName} onChange={(e) => { this.setState({ processName: e.target.value }) }} />
@@ -191,14 +194,14 @@ export default class ControlPanel extends React.Component {
                         <div style={{ width: "35%" }}>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onClick={() => {
-                                    if (!appInstallPath || appInstallPath == "") return message.error("安装路径不能为空")
+                                    if (!appInstallPath) return message.error("安装路径不能为空")
                                     sendCmd({ codeType: "app", cmd: "installApp", path: appInstallPath, isRemove: "YES" })
                                 }}>安装app</Button>
                                 <Input placeholder="ipa路径" value={appInstallPath} onChange={(e) => { this.setState({ appInstallPath: e.target.value }) }} />
                             </div>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onClick={() => {
-                                    if (!isInstallBid || isInstallBid == "") return message.error("包名不能为空")
+                                    if (!isInstallBid) return message.error("包名不能为空")
                                     sendCmd({ codeType: "app", cmd: "isInstall", bundleID: isInstallBid })
                                 }}>app是否安装</Button>
                                 <Input placeholder="app包名" value={isInstallBid} onChange={(e) => { this.setState({ isInstallBid: e.target.value }) }} />
@@ -208,14 +211,14 @@ export default class ControlPanel extends React.Component {
                         <div style={{ width: "35%" }}>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onClick={() => {
-                                    if (!uninstallBid || uninstallBid == "") return message.error("包名不能为空")
+                                    if (!uninstallBid) return message.error("包名不能为空")
                                     sendCmd({ codeType: "app", cmd: "uninstallAPP", bundleID: uninstallBid })
                                 }}>卸载app</Button>
                                 <Input placeholder="app包名" value={uninstallBid} onChange={(e) => { this.setState({ uninstallBid: e.target.value }) }} />
                             </div>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onClick={() => {
-                                    if (!closeAppBid || closeAppBid == "") return message.error("包名不能为空")
+                                    if (!closeAppBid) return message.error("包名不能为空")
                                     sendCmd({ codeType: "app", cmd: "killApp", bundleID: closeAppBid })
                                 }}>关闭app</Button>
                                 <Input placeholder="app包名" value={closeAppBid} onChange={(e) => { this.setState({ closeAppBid: e.target.value }) }} />
@@ -242,7 +245,7 @@ export default class ControlPanel extends React.Component {
                         <div style={{ width: "35%" }}>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onClick={() => {
-                                    if (!deviceProperty || deviceProperty == "") return message.error("要获取的信息不能为空")
+                                    if (!deviceProperty) return message.error("要获取的信息不能为空")
                                     sendCmd({ codeType: "device", cmd: "MGCopyAnswe", property: deviceProperty })
                                 }}>查询设备信息</Button>
                                 <Input placeholder="要查询的信息" value={deviceProperty} onChange={(e) => { this.setState({ deviceProperty: e.target.value }) }} />
@@ -250,10 +253,10 @@ export default class ControlPanel extends React.Component {
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <div>
                                     <Button onMouseDown={() => { keyMSleep = new Date().getTime() }} onMouseUp={() => {
-                                        sendCmd({ codeType: "Touch", cmd: "keyClick", key: "233", mSleep: (new Date().getTime() - keyMSleep) })
+                                        sendCmd({ codeType: "Touch", cmd: "keyClick", key: "234", mSleep: (new Date().getTime() - keyMSleep) })
                                     }}>音量-</Button>
                                     <Button onMouseDown={() => { keyMSleep = new Date().getTime() }} onMouseUp={() => {
-                                        sendCmd({ codeType: "Touch", cmd: "keyClick", key: "234", mSleep: (new Date().getTime() - keyMSleep) })
+                                        sendCmd({ codeType: "Touch", cmd: "keyClick", key: "233", mSleep: (new Date().getTime() - keyMSleep) })
                                     }}>音量+</Button>
                                 </div>
                                 <Button onMouseDown={() => { keyMSleep = new Date().getTime() }} onMouseUp={() => {
@@ -264,7 +267,7 @@ export default class ControlPanel extends React.Component {
                         <div style={{ width: "35%" }}>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onMouseDown={() => { keyMSleep = new Date().getTime() }} onMouseUp={() => {
-                                    if (!keyNumber || keyNumber == "") return message.error("按键码不能为空")
+                                    if (!keyNumber) return message.error("按键码不能为空")
                                     sendCmd({ codeType: "Touch", cmd: "keyClick", key: keyNumber, mSleep: (new Date().getTime() - keyMSleep) })
                                 }}>keyClike</Button>
                                 <Input placeholder="按键码" value={keyNumber} onChange={(e) => { this.setState({ keyNumber: e.target.value }) }} />
@@ -297,14 +300,14 @@ export default class ControlPanel extends React.Component {
                     extend == "deb" ? <div className={styles.item}>
                         <div style={{ display: "flex" }}>
                             <Button onClick={() => {
-                                if (!installDebPath || installDebPath == "") return message.error("deb包路径不能为空")
+                                if (!installDebPath) return message.error("deb包路径不能为空")
                                 sendCmd({ codeType: "system", cmd: "runTerminalCmd", TerminalCmd: "dpkg -i " + installDebPath })
                             }}>安装deb</Button>
                             <Input placeholder="deb包路径" value={installDebPath} onChange={(e) => { this.setState({ installDebPath: e.target.value }) }} />
                         </div>
                         <div style={{ display: "flex" }}>
                             <Button onClick={() => {
-                                if (!uninstallDeb || uninstallDeb == "") return message.error("deb包名不能为空")
+                                if (!uninstallDeb) return message.error("deb包名不能为空")
                                 sendCmd({ codeType: "system", cmd: "runTerminalCmd", TerminalCmd: "dpkg -P " + uninstallDeb })
                             }}>卸载deb</Button>
                             <Input placeholder="deb包名" value={uninstallDeb} onChange={(e) => { this.setState({uninstallDeb: e.target.value }) }} />
@@ -320,13 +323,15 @@ export default class ControlPanel extends React.Component {
                         <div>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onClick={() => {
-                                    sendCmd({ codeType: "websocket", cmd: "setDeviceNumber", deviceNumber: (deviceNumber && deviceNumber != "") ? deviceNumber : null })
+                                    if (deviceNumber) sendCmd({ codeType: "websocket", cmd: "setDeviceNumber", deviceNumber})
+                                    else sendCmd({ codeType: "websocket", cmd: "setDeviceNumber"})
                                 }}>设备编号</Button>
                                 <Input placeholder="设置新的设备编号,不填为获取" value={deviceNumber} onChange={(e) => { this.setState({ deviceNumber: e.target.value }) }} />
                             </div>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onClick={() => {
-                                    sendCmd({ codeType: "websocket", cmd: "setPingTime", pingTime: (pingTime && pingTime != "") ? pingTime : null })
+                                    if (pingTime) sendCmd({ codeType: "websocket", cmd: "setPingTime", pingTime})
+                                    else sendCmd({ codeType: "websocket", cmd: "setPingTime"})
                                 }}>心跳包时间</Button>
                                 <Input placeholder="更改心跳包时间(秒),不填为获取" value={pingTime} onChange={(e) => { this.setState({ pingTime: e.target.value }) }} />
 
@@ -343,14 +348,15 @@ export default class ControlPanel extends React.Component {
                         <div>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onClick={() => {
-                                    if (!socketSever || socketSever == "") return message.error("服务器地址不能为空")
+                                    if (!socketSever) return message.error("服务器地址不能为空")
                                     if (window.confirm("要将设备连接到-> " + socketSever + " 吗?")) sendCmd({ codeType: "websocket", cmd: "setServerURL", url: socketSever })
                                 }}>服务器地址</Button>
                                 <Input  placeholder="新服务器地址 ws:\\ " value={socketSever} onChange={(e) => { this.setState({ socketSever: e.target.value }) }} />
                             </div>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button  onClick={() => {
-                                    sendCmd({ codeType: "websocket", cmd: "setOvertime", overtime: (overTime && overTime != "") ? overTime : null })
+                                    if (overTime) sendCmd({ codeType: "websocket", cmd: "setOvertime", overtime:overTime})
+                                    else sendCmd({ codeType: "websocket", cmd: "setOvertime"})
                                 }}>超时时间</Button>
                                 <Input placeholder="更改超时时间(秒),不填为获取" value={overTime} onChange={(e) => { this.setState({ overTime: e.target.value }) }} />
                             </div>
@@ -358,14 +364,14 @@ export default class ControlPanel extends React.Component {
                         <div>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onClick={() => {
-                                    if (!NETCondition || NETCondition == "") return sendCmd({ codeType: "websocket", cmd: "setNETCondition" })
+                                    if (!NETCondition) return sendCmd({ codeType: "websocket", cmd: "setNETCondition" })
                                     if (window.confirm("改变网络条件有可能会使设备与服务器断开连接")) sendCmd({ codeType: "websocket", cmd: "setNETCondition", condition: NETCondition })
                                 }}>网络条件</Button>
                                 <Input placeholder=" wifi cellularNET unlimited " value={NETCondition} onChange={(e) => { this.setState({ NETCondition: e.target.value }) }} />
                             </div>
                             <div style={{ display: "flex", justifyContent: "space-between" }}>
                                 <Button onClick={() => {
-                                    if (!consoleCmd || consoleCmd == "") return message.error("中控指令不能为空")
+                                    if (!consoleCmd) return message.error("中控指令不能为空")
                                     try {
                                         const msg = JSON.parse(consoleCmd)
                                         sendCmd(msg)

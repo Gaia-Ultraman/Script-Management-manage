@@ -1,15 +1,23 @@
 import React, { Component } from "react";
-import { Button ,Modal} from "antd"
+import { Button ,Modal,Input,Select} from "antd"
 import { PlusOutlined } from "@ant-design/icons"
-import { getGroup, setGroup, deletGroup } from "@/utils/group"
+import { getGroup, deletGroup } from "@/utils/group"
 import styles from "./index.less"
-
+const { Option}=Select
 export default class Groups extends React.Component {
 
     state = {
         groups: getGroup(),
         currentGroup: getGroup()[0],
-        visible:false
+        visible:false,
+        //表单数据
+        name:"",
+        type:2,
+        codeType:[""],
+        cmd:[""],
+        retMsg:[""],
+        runState:[""],
+        msgType:[""]
     }
     //选择了分组，回调
     handleSelct = (value) => {
@@ -32,14 +40,17 @@ export default class Groups extends React.Component {
         })
     }
     handleOk=()=>{
+        const { handleBack } = this.props
         this.showModal()
-        // this.setState
+        this.setState({
+            currentGroup: getGroup()[0],
+        },()=>{handleBack(this.state.currentGroup)})
     }
 
 
     render() {
         const { } = this.props
-        const { groups, currentGroup,visible } = this.state
+        const { name,type,codeType,cmd,retMsg,runState,msgType,currentGroup,visible,groups } = this.state
         return (<>
             <div className={styles.groupList}>
                 {groups.map((value, i) => {
@@ -48,22 +59,22 @@ export default class Groups extends React.Component {
                 <Button onClick={this.showModal}><PlusOutlined style={{ fontSize: 45, color: "rgba(0,0,0,0.3)" }} /></Button>
             </div>
            
-            {/* <Modal
+            <Modal
                 title="编辑分组"
                 visible={visible}
                 onOk={this.handleOk}
                 onCancel={this.showModal}
             >
-                <Input className={styles.item} placeholder="请输入需分组名字！" onChange={(e) => { this.handleInput_add("addName", e.target.value) }} />
-                <Select className={styles.item} defaultValue={type} style={{ width: 180 }} onChange={(value) => {
-                    this.handleInput_add("type", value)
-                }
-                }>
+                <div >
+
+                </div>
+                <Input className={styles.item} placeholder="请输入需分组名字！" onChange={(e) => { }} />
+                <Select className={styles.item} value={type} style={{ width: 180 }} onChange={(value) => {}}>
                     <Option value={1}>正则表达式筛选</Option>
                     <Option value={2}>手动点击筛选</Option>
                 </Select>
-                {type == 1 ? <Input className={styles.item} placeholder="请输入正则表达式！" onChange={(e) => { this.handleInput_add("reg", e.target.value) }} /> : null}
-            </Modal> */}
+                {type == 1 ? <Input className={styles.item} placeholder="请输入正则表达式！" onChange={(e) => { }} /> : null}
+            </Modal>
         </>
         );
     }
@@ -134,3 +145,4 @@ export default class Groups extends React.Component {
     //         [key]: value
     //     })
     // }
+
