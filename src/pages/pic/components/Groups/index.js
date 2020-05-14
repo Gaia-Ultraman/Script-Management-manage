@@ -1,23 +1,26 @@
 import React, { Component } from "react";
-import { Button ,Modal,Input,Select} from "antd"
+import { Button, Modal, Input, Select, Divider, message } from "antd"
 import { PlusOutlined } from "@ant-design/icons"
-import { getGroup, deletGroup } from "@/utils/group"
+import { getGroup, deletGroup, setGroup } from "@/utils/group"
 import styles from "./index.less"
-const { Option}=Select
+const { Option } = Select
 export default class Groups extends React.Component {
 
     state = {
         groups: getGroup(),
         currentGroup: getGroup()[0],
-        visible:false,
+        visible: false,
         //表单数据
-        name:"",
-        type:2,
-        codeType:[""],
-        cmd:[""],
-        retMsg:[""],
-        runState:[""],
-        msgType:[""]
+        name: "",
+        type: 2,
+        regs: {
+            codeType: [""],
+            cmd: [""],
+            retMsg: [""],
+            runState: [""],
+            msgType: [""]
+        }
+
     }
     //选择了分组，回调
     handleSelct = (value) => {
@@ -34,23 +37,36 @@ export default class Groups extends React.Component {
         handleBack(this.state.currentGroup)
     }
 
-    showModal=()=>{
+    showModal = () => {
         this.setState({
-            visible:!this.state.visible
+            visible: !this.state.visible
         })
     }
-    handleOk=()=>{
+    handleOk = () => {
+        //type 为1是正则匹配[{name:"全部",type:1,regs:{}}]     为2时为手动勾选的[{name:"例子",type:2,data:["id-1","id-2"]}];    
         const { handleBack } = this.props
+        const { name, type, regs } = this.state
+        let result = null
+        if (type == 1) {
+            result = setGroup({ name, type, regs })
+        } else {
+            result = setGroup({ name, type, data: devices.filter(v => v.checked).map(v => v.id) })
+        }
         this.showModal()
-        this.setState({
-            currentGroup: getGroup()[0],
-        },()=>{handleBack(this.state.currentGroup)})
+        if (result) {
+            this.setState({
+                groups: result,
+                currentGroup: result[0],
+            }, () => { handleBack(this.state.currentGroup); message.success("操作成功!") })
+        } else {
+            message.success("操作失败!")
+        }
     }
 
 
     render() {
-        const { } = this.props
-        const { name,type,codeType,cmd,retMsg,runState,msgType,currentGroup,visible,groups } = this.state
+        const { devices } = this.props
+        const { name, type, regs, currentGroup, visible, groups } = this.state
         return (<>
             <div className={styles.groupList}>
                 {groups.map((value, i) => {
@@ -58,22 +74,44 @@ export default class Groups extends React.Component {
                 })}
                 <Button onClick={this.showModal}><PlusOutlined style={{ fontSize: 45, color: "rgba(0,0,0,0.3)" }} /></Button>
             </div>
-           
+
             <Modal
                 title="编辑分组"
                 visible={visible}
                 onOk={this.handleOk}
                 onCancel={this.showModal}
             >
-                <div >
-
+                <div className={styles.container}>
+                    {/* 正则表达式类型 */}
+                    <div className={styles.modalLeft}>
+                        <div className={styles.tip}>正则表达式筛选:</div>
+                        {groups.filter(v => v.name != "全部" && v.type == 1).map(v => <a>{v.name}</a>)}
+                    </div>
+                    {/* 手动选择类型 */}
+                    <div className={styles.modalRight}>
+                        <div className={styles.tip}>手动选择:</div>
+                        {groups.filter(v => v.name != "全部" && v.type == 2).map(v => <a>{v.name}</a>)}
+                    </div>
                 </div>
-                <Input className={styles.item} placeholder="请输入需分组名字！" onChange={(e) => { }} />
-                <Select className={styles.item} value={type} style={{ width: 180 }} onChange={(value) => {}}>
+                <Divider />
+                <Input className={styles.item} placeholder="请输入需分组名字！" onChange={(e) => { this.setState({ name: e.target.name }) }} />
+                <Select className={styles.item} value={type} style={{ width: 180 }} onChange={(type) => { this.setState({ type }) }}>
                     <Option value={1}>正则表达式筛选</Option>
                     <Option value={2}>手动点击筛选</Option>
                 </Select>
-                {type == 1 ? <Input className={styles.item} placeholder="请输入正则表达式！" onChange={(e) => { }} /> : null}
+                {type == 1 ? <div>
+                    {Object.keys(regs).map(key => {
+                        return <div style={{paddingBottom:"5px"}}>
+                            {key}:{regs[key].map((v, i) => {
+                                return [<Input size="small" value={v} className={styles.regItem} onChange={(e) => { regs[key][i] = e.target.value; this.forceUpdate() }} />,
+                                regs[key].length-1 == i?<a onClick={()=>{regs[key].push("");this.forceUpdate()}}>增加</a>:null]
+                            })
+                            }
+                        </div>
+                    })}
+                </div>
+                    :
+                    <div>已勾选&nbsp;<span style={{ fontSize: "20px", color: "green" }}>{devices && devices.filter(v => v.checked).length}</span>&nbsp;台</div>}
             </Modal>
         </>
         );

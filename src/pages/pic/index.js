@@ -313,7 +313,7 @@ export default class App extends React.Component {
 
             <div className={styles.content}>
                 {/* 左边分组 */}
-                <Groups handleBack={group => this.handleGroup(group, true)} />
+                <Groups handleBack={group => this.handleGroup(group, true)} devices={showDevices}/>
                 {/* 手机列表 */}
                 <Cards devices={showDevices} onChecked={this.handleCardCheck} sendFunc={this.sendMessage} />
             </div>
