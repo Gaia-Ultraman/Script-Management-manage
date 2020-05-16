@@ -85,23 +85,23 @@ export default class Groups extends React.Component {
                     {/* 正则表达式类型 */}
                     <div className={styles.modalLeft}>
                         <div className={styles.tip}>正则表达式筛选:</div>
-                        {groups.filter(v => v.name != "全部" && v.type == 1).map(v => <a>{v.name}</a>)}
+                        {groups.filter(v => v.name != "全部" && v.type == 1).map(v => <span>{v.name}</span>)}
                     </div>
                     {/* 手动选择类型 */}
                     <div className={styles.modalRight}>
                         <div className={styles.tip}>手动选择:</div>
-                        {groups.filter(v => v.name != "全部" && v.type == 2).map(v => <a>{v.name}</a>)}
+                        {groups.filter(v => v.name != "全部" && v.type == 2).map(v => <span>{v.name}</span>)}
                     </div>
                 </div>
                 <Divider />
-                <Input className={styles.item} placeholder="请输入需分组名字！" onChange={(e) => { this.setState({ name: e.target.name }) }} />
+                <Input className={styles.item} placeholder="请输入需分组名字！" onChange={(e) => { this.setState({ name: e.target.value }) }} />
                 <Select className={styles.item} value={type} style={{ width: 180 }} onChange={(type) => { this.setState({ type }) }}>
                     <Option value={1}>正则表达式筛选</Option>
                     <Option value={2}>手动点击筛选</Option>
                 </Select>
                 {type == 1 ? <div>
                     {Object.keys(regs).map(key => {
-                        return <div style={{paddingBottom:"5px"}}>
+                        return <div key={key} style={{paddingBottom:"5px"}}>
                             {key}:{regs[key].map((v, i) => {
                                 return [<Input size="small" value={v} className={styles.regItem} onChange={(e) => { regs[key][i] = e.target.value; this.forceUpdate() }} />,
                                 regs[key].length-1 == i?<a onClick={()=>{regs[key].push("");this.forceUpdate()}}>增加</a>:null]

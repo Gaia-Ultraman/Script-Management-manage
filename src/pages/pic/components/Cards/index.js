@@ -108,9 +108,8 @@ export default class MyCard extends React.Component {
                                 }>
                                 <Meta
                                     title={<Checkbox checked={value.checked} onClick={(e) => { this.handleCheck(e, value.id) }}>{value.name}</Checkbox>}
-                                    // description={value.des ? value.des : ""}
-                                    description={<Tooltip title={value.des ? value.des : ""}>
-                                        <span>{value.des ? value.des : ""}</span>
+                                    description={<Tooltip title={value.data ? value.data.retMsg : ""}>
+                                        <span>{value.data ? value.data.retMsg : ""}</span>
                                     </Tooltip>
                                         
                                     }
