@@ -74,7 +74,6 @@ export default class Groups extends React.Component {
                 })}
                 <Button onClick={this.showModal}><PlusOutlined style={{ fontSize: 45, color: "rgba(0,0,0,0.3)" }} /></Button>
             </div>
-
             <Modal
                 title="编辑分组"
                 visible={visible}

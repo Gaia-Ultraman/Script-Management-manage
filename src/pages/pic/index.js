@@ -42,36 +42,23 @@ export default class App extends React.Component {
             if (this.results.length) {
                 this.results.forEach(result => {
                     if (result.data.msgType != 'base64') {
-                        //全部设备里面的截图更新
+                        //全部设备里面的日志更新
                         allDevices.forEach(v => {
                             if (v.id == result.from.id) {
                                 v.data = result.data
                             }
                         })
-                        //当前显示设备里的截图更新
+                        // 当前设备里的实时日志更新
                         showDevices.forEach(v => {
                             if (v.id == result.from.id) {
                                 v.data = result.data
                             }
                         })
                     }
-
                     //获取图片
                     if (result.data && result.data.cmd == "updateSnapshot") {
                         //客户端截图成功
                         if (result.data.msgType == 'base64') {
-                            //全部设备里面的截图更新
-                            // allDevices.forEach(v => {
-                            //     if (v.id == result.from.id) {
-                            //         v.src = "data:image/jpeg;base64," + result.data.retMsg
-                            //     }
-                            // })
-                            // //当前显示设备里的截图更新
-                            // showDevices.forEach(v => {
-                            //     if (v.id == result.from.id) {
-                            //         v.src = "data:image/jpeg;base64," + result.data.retMsg
-                            //     }
-                            // })
                             setLocalPic(result.from.id, "data:image/jpeg;base64," + result.data.retMsg)
                         }
                     }
@@ -81,6 +68,7 @@ export default class App extends React.Component {
                     showDevices: JSON.parse(JSON.stringify(showDevices)),
                 })
             }
+            this.results=[]
         }, 1000)
     }
 
@@ -102,7 +90,7 @@ export default class App extends React.Component {
             try {
                 result = JSON.parse(event.data)
             } catch (err) {
-                console.log("消息返回解析错误:", err)
+                message.error("返回消息解析错误:", err)
                 return
             }
             const { currentGroup, showDevices, allDevices } = this.state
@@ -126,9 +114,7 @@ export default class App extends React.Component {
             }
             //接受来自手机的消息
             else if (result.from && result.from.group == "phone") {
-
                 this.results.push(result)
-
             }
         });
         this.ws.addEventListener('error', (event) => {
@@ -155,7 +141,6 @@ export default class App extends React.Component {
                 checked: false
             })
         });
-
     }
 
     //★★★★★★★★★筛选★★★★★★★★★
@@ -197,7 +182,6 @@ export default class App extends React.Component {
         this.setState({ showDevices: newShowDevices, currentGroup: group, checked: false })
     }
 
-
     //checkBox 全选
     handleCheck = (e) => {
         const { showDevices } = this.state
@@ -215,7 +199,7 @@ export default class App extends React.Component {
     }
 
     //底部回调的值
-    handleBottomObj = (type, data) => {
+    handleBottomObj = (msg) => {
         const { showDevices } = this.state
         let ids = showDevices.filter(v => v.checked).map(v => v.id)
         console.log("BottomCB", type, data)
@@ -244,7 +228,6 @@ export default class App extends React.Component {
         }
     }
 
-
     //调用websocket发送消息 
     sendMessage = (data, dis) => {
         const { hasConnect, tempId } = this.state
@@ -259,7 +242,6 @@ export default class App extends React.Component {
             dis
         }))
     }
-
 
     //操作连接地址Input
     handleInputUrl = (e) => {
