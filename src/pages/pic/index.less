@@ -2,6 +2,8 @@
     height: 100%;
     padding: 0 1rem;
     overflow: auto;
+    display: flex;
+    flex-direction: column;
     .header{
         display: flex;
         justify-content: space-between;
@@ -24,11 +26,14 @@
             margin-right: 16px;
         }
     .content {
+        flex:1;
         padding-top: 5px;
         display: flex;
-        height: 756px;
         overflow: hidden;
     }
 
 }
 
+.item {
+    margin-bottom: 20px;
+}
