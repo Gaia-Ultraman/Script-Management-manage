@@ -63,7 +63,7 @@ export default class ControlPanel extends React.Component {
             <div className={styles.container}>
                 <div className={styles.item}>
                     {tips.map(v => {
-                        return <p style={{ fontSize: "15px", color: "#2593FC" }} onClick={() => {
+                        return <p key={v} style={{ fontSize: "15px", color: "#2593FC" }} onClick={() => {
                             if (extend == v) return this.setState({ extend: "触摸" });
                             this.setState({ extend: v });
                         }} >{v}{extend == v ? <DownOutlined /> : <UpOutlined />}</p>

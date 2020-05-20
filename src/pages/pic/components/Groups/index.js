@@ -1,6 +1,6 @@
 import React, { Component } from "react";
 import { Button, Modal, Input, Select, Divider, message } from "antd"
-import { PlusOutlined } from "@ant-design/icons"
+import { PlusOutlined, CloseCircleTwoTone } from "@ant-design/icons"
 import { getGroup, deletGroup, setGroup } from "@/utils/group"
 import styles from "./index.less"
 const { Option } = Select
@@ -12,7 +12,7 @@ export default class Groups extends React.Component {
         visible: false,
         //表单数据
         name: "",
-        type: 2,
+        type: 1,
         regs: {
             codeType: [""],
             cmd: [""],
@@ -63,6 +63,11 @@ export default class Groups extends React.Component {
         }
     }
 
+    setGroup=(group)=>{
+        this.setState({
+            ...group
+        })
+    }
 
     render() {
         const { devices } = this.props
@@ -84,12 +89,12 @@ export default class Groups extends React.Component {
                     {/* 正则表达式类型 */}
                     <div className={styles.modalLeft}>
                         <div className={styles.tip}>正则表达式筛选:</div>
-                        {groups.filter(v => v.name != "全部" && v.type == 1).map(v => <span>{v.name}</span>)}
+                        {groups.filter(v => v.name != "全部" && v.type == 1).map(v => <span onClick={()=>{this.setGroup(v)}} style={name==v.name?{color:"#1890ff"}:""}>{v.name}</span>)}
                     </div>
                     {/* 手动选择类型 */}
                     <div className={styles.modalRight}>
                         <div className={styles.tip}>手动选择:</div>
-                        {groups.filter(v => v.name != "全部" && v.type == 2).map(v => <span>{v.name}</span>)}
+                        {groups.filter(v => v.name != "全部" && v.type == 2).map(v => <span onClick={()=>{this.setGroup(v)}} style={name==v.name?{color:"#1890ff"}:""}>{v.name}</span>)}
                     </div>
                 </div>
                 <Divider />
@@ -100,10 +105,10 @@ export default class Groups extends React.Component {
                 </Select>
                 {type == 1 ? <div>
                     {Object.keys(regs).map(key => {
-                        return <div key={key} style={{paddingBottom:"5px"}}>
+                        return <div key={key} style={{ paddingBottom: "5px" }}>
                             {key}:{regs[key].map((v, i) => {
                                 return [<Input size="small" value={v} className={styles.regItem} onChange={(e) => { regs[key][i] = e.target.value; this.forceUpdate() }} />,
-                                regs[key].length-1 == i?<a onClick={()=>{regs[key].push("");this.forceUpdate()}}>增加</a>:null]
+                                regs[key].length - 1 == i ? <a onClick={() => { regs[key].push(""); this.forceUpdate() }}>增加</a> : <CloseCircleTwoTone onClick={() => { regs[key].splice(i, 1); this.forceUpdate() }} className={styles.deleteIcon} twoToneColor="#eb2f96" />]
                             })
                             }
                         </div>

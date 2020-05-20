@@ -145,6 +145,7 @@ export default class App extends React.Component {
 
     //★★★★★★★★★筛选★★★★★★★★★
     handleGroup = (group, removeCheck) => {
+        debugger
         console.log("group", group)
         const { allDevices, showDevices } = this.state
         let newShowDevices = [];
