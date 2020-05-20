@@ -68,7 +68,7 @@ export default class App extends React.Component {
                     showDevices: JSON.parse(JSON.stringify(showDevices)),
                 })
             }
-            this.results=[]
+            this.results = []
         }, 1000)
     }
 
@@ -104,9 +104,9 @@ export default class App extends React.Component {
                     allDevices.push(result.data.retMsg)
                 } else if (result.data && result.data.cmd == "offline") {
                     message.error(`${result.data.retMsg.name} 下线`)
-                    for(let i=0;i<allDevices.length;i++){
-                        if(allDevices[i].id==result.data.retMsg.id){
-                            allDevices.splice(i,1)
+                    for (let i = 0; i < allDevices.length; i++) {
+                        if (allDevices[i].id == result.data.retMsg.id) {
+                            allDevices.splice(i, 1)
                         }
                     }
                 }
@@ -171,10 +171,14 @@ export default class App extends React.Component {
 
         //filter 返回的子元素是引用类型时，需要深拷贝一下数组，不然会影响原数据
         if (group.type == 1) {
-            //TODO
             newShowDevices = cloneAllDevices.filter(v => {
-                let reg = new RegExp(group.reg)
-                reg.test(v.id)
+                return Object.keys(group.regs).reduce((pre, cur, index) => {
+                    return pre && group.regs[cur].reduce((p,c,i)=>{
+                        if(!c)return p
+                        let reg = new RegExp(c)
+                        return p && reg.test(v.data[cur])
+                    },true)
+                }, true)
             })
         } else if (group.type == 2) {
             newShowDevices = cloneAllDevices.filter(v => { return group.data.indexOf(v.id) != -1 })
@@ -291,7 +295,7 @@ export default class App extends React.Component {
 
             <div className={styles.content}>
                 {/* 左边分组 */}
-                <Groups handleBack={group => this.handleGroup(group, true)} devices={showDevices}/>
+                <Groups handleBack={group => this.handleGroup(group, true)} devices={showDevices} />
                 {/* 手机列表 */}
                 <Cards devices={showDevices} onChecked={this.handleCardCheck} sendFunc={this.sendMessage} />
             </div>
