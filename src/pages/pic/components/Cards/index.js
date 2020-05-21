@@ -1,7 +1,8 @@
 import React, { Component } from "react";
-import { Checkbox, Card, Pagination, Modal, message, Tooltip } from "antd"
-import { ReloadOutlined } from "@ant-design/icons"
+import { Checkbox, Card, Pagination, Modal, message, Tooltip, Popover, Popconfirm, Button } from "antd"
+import { ReloadOutlined, PlusOutlined, CloseOutlined } from "@ant-design/icons"
 import { getLocalPic, setLocalPic } from "@/utils/picture"
+import { getGroup, deleteGroup, setGroup } from "@/utils/group"
 import { getLogs } from "@/services/log"
 import styles from "./index.less"
 const { Meta } = Card
@@ -94,15 +95,20 @@ export default class MyCard extends React.Component {
         if (!visible) return
         getLogs(id, limit).then(res => {
             console.log("Res", res)
-            if (res.succes) {
+            if (res && res.succes) {
                 this.setState({ data: res.data })
             }
         })
     }
 
+    handleDevice = (group, ids, add) => {
+        //add 为true是在分组中添加 false是删除
+        const { handleDevice } = this.props
+        handleDevice(group, ids, add)
+    }
 
     render() {
-        const { devices } = this.props
+        const { devices, currentGroup } = this.props
         const { page, pageSize, src, name, id, visible, data } = this.state
         return (
             <div className={styles.cardContainer}>
@@ -113,7 +119,21 @@ export default class MyCard extends React.Component {
                                 style={{ width: 165, marginTop: "0.3rem", marginLeft: "0.3rem", marginRight: "0.3rem" }}
                                 cover={
                                     <div onClick={() => { this.handleAmplification(value) }}>
-                                        <ReloadOutlined className={styles.icon} onClick={(e) => this.refresh(e, value.id)} />
+                                        <div className={styles.iconList} onClick={(e) => { e.stopPropagation() }}>
+                                            <ReloadOutlined className={styles.icon} onClick={(e) => this.refresh(e, value.id)} />
+                                            <Popover placement="right" title={"添加至分组"} content={getGroup().filter(v => v.type == 2).map(v => <div key={v.name} style={{ cursor: "pointer" }} onClick={() => { this.handleDevice(v, [value.id], true) }}>{v.name}</div>)} trigger="click">
+                                                <PlusOutlined className={styles.icon} />
+                                            </Popover>
+                                            <Popconfirm
+                                                title="确定从该分组中删除此设备吗？"
+                                                placement="right"
+                                                onConfirm={() => { this.handleDevice(currentGroup, [value.id], false) }}
+                                                okText="是的"
+                                                cancelText="再想想"
+                                            >
+                                                <CloseOutlined className={styles.icon} />
+                                            </Popconfirm>,
+                                        </div>
                                         {getLocalPic(value.id) ? <img
                                             style={{ width: 160, height: 280 }}
                                             alt="屏幕截图"
@@ -136,6 +156,7 @@ export default class MyCard extends React.Component {
                         })
                     }
                 </div>
+                {devices.length && currentGroup.type == 2 ? <Button type="primary" danger onClick={() => { this.handleDevice(currentGroup, devices.filter(v => v.checked).map(v => v.id), false) }}>移除勾选设备</Button> : null}
                 {/* <Pagination defaultCurrent={1} total={devices.length} onChange={this.handlePage} /> */}
                 <Modal
                     title={name}
@@ -145,8 +166,8 @@ export default class MyCard extends React.Component {
                     width={'800px'}
                 >
                     <div className={styles.modalContainer}>
-                        <img src={src} style={{ width: "320px",height:"560px" }}></img>
-                        <ul style={{ width: "auto",height:"560px" ,overflow:"auto"}}>
+                        <img src={src} style={{ width: "320px", height: "560px" }}></img>
+                        <ul style={{ width: "auto", height: "560px", overflow: "auto" }}>
                             {data && data.length ? data.map((v) => {
                                 return <li>{v.data}</li>
                             }) : null}

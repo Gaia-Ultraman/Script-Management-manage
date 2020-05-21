@@ -28,7 +28,6 @@ function setGroup(obj){
         }else{
             groups=JSON.parse(JSON.stringify(defaultGroup))
         }
-        debugger
         groups.forEach((v,i)=>{
             if(v.name==obj.name){
                 key=i
@@ -47,7 +46,7 @@ function setGroup(obj){
     }
 }
 
-function deletGroup(name){
+function deleteGroup(name){
     try{
         let temp=localStorage.getItem(version),groups=[]
         if(temp){
@@ -64,4 +63,4 @@ function deletGroup(name){
     }
 }
 
-export {getGroup,setGroup,deletGroup}
+export {getGroup,setGroup,deleteGroup}

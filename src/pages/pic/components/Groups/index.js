@@ -1,7 +1,7 @@
 import React, { Component } from "react";
 import { Button, Modal, Input, Select, Divider, message } from "antd"
 import { PlusOutlined, CloseCircleTwoTone } from "@ant-design/icons"
-import { getGroup, deletGroup, setGroup } from "@/utils/group"
+import { getGroup, deleteGroup, setGroup } from "@/utils/group"
 import styles from "./index.less"
 const { Option } = Select
 export default class Groups extends React.Component {
@@ -32,6 +32,36 @@ export default class Groups extends React.Component {
         })
     }
 
+
+    //手勾选分组设备的增删
+    handleDevice = (group, ids, add) => {
+        console.log("删除设备", group, ids, add)
+        const { handleBack } = this.props
+        if (group && group.type == 1) {
+            message.error('不可操作正则表达式分组设备!')
+            return
+        }
+        if (!(group.data instanceof Array)) {
+            message.error('未知错误!')
+            return
+        }
+        if (add) {
+            group.data = group.data.concant(ids)
+        } else {
+            group.data = group.data.filter(v => {
+                return ids.indexOf(v) == -1
+            })
+        }
+        let result = setGroup(group)
+        if (result) {
+            this.setState({
+                groups: result,
+            }, () => { handleBack(group); message.success("操作成功!") })
+        } else {
+            message.success("操作失败!")
+        }
+    }
+
     componentDidMount() {
         const { handleBack } = this.props
         handleBack(this.state.currentGroup)
@@ -42,9 +72,10 @@ export default class Groups extends React.Component {
             visible: !this.state.visible
         })
     }
+    //点击OK
     handleOk = () => {
         //type 为1是正则匹配[{name:"全部",type:1,regs:{}}]     为2时为手动勾选的[{name:"例子",type:2,data:["id-1","id-2"]}];    
-        const { handleBack,devices } = this.props
+        const { handleBack, devices } = this.props
         const { name, type, regs } = this.state
         let result = null
         if (type == 1) {
@@ -63,7 +94,19 @@ export default class Groups extends React.Component {
         }
     }
 
-    setGroup=(group)=>{
+    //删除分组
+    deleteGroup = (name) => {
+        let result = deleteGroup(name)
+        if (result) {
+            this.setState({ groups: result })
+            message.success('删除成功!')
+        } else {
+            message.error('删除失败!')
+        }
+    }
+
+    //设置内容为当前分组
+    setGroup = (group) => {
         this.setState({
             ...group
         })
@@ -89,12 +132,12 @@ export default class Groups extends React.Component {
                     {/* 正则表达式类型 */}
                     <div className={styles.modalLeft}>
                         <div className={styles.tip}>正则表达式筛选:</div>
-                        {groups.filter(v => v.name != "全部" && v.type == 1).map(v => <div className={styles.nameItem} onClick={()=>{this.setGroup(v)}} style={name==v.name?{color:"#1890ff"}:{}}>{v.name}</div>)}
+                        {groups.filter(v => v.name != "全部" && v.type == 1).map(v => <div className={styles.nameItem} onClick={() => { this.setGroup(v) }} style={name == v.name ? { color: "#1890ff" } : {}}>{v.name}&nbsp;&nbsp;<CloseCircleTwoTone onClick={() => { this.deleteGroup(v.name) }} className={styles.deleteIcon} twoToneColor="#eb2f96" /></div>)}
                     </div>
                     {/* 手动选择类型 */}
                     <div className={styles.modalRight}>
                         <div className={styles.tip}>手动选择:</div>
-                        {groups.filter(v => v.name != "全部" && v.type == 2).map(v => <div className={styles.nameItem} onClick={()=>{this.setGroup(v)}} style={name==v.name?{color:"#1890ff"}:{}}>{v.name}</div>)}
+                        {groups.filter(v => v.name != "全部" && v.type == 2).map(v => <div className={styles.nameItem} onClick={() => { this.setGroup(v) }} style={name == v.name ? { color: "#1890ff" } : {}}>{v.name}&nbsp;&nbsp;<CloseCircleTwoTone onClick={() => { this.deleteGroup(v.name) }} className={styles.deleteIcon} twoToneColor="#eb2f96" /></div>)}
                     </div>
                 </div>
                 <Divider />

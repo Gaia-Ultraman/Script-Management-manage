@@ -256,7 +256,7 @@ export default class App extends React.Component {
     }
 
     render() {
-        const { checked, showDevices, hasConnect, url } = this.state
+        const { checked, showDevices, hasConnect, url ,currentGroup} = this.state
         return <div className={styles.container}>
             <div className={styles.header}>
                 <div>
@@ -275,9 +275,9 @@ export default class App extends React.Component {
 
             <div className={styles.content}>
                 {/* 左边分组 */}
-                <Groups handleBack={group => this.handleGroup(group, true)} devices={showDevices} />
+                <Groups ref={ref=>{this.groupsRef=ref}} handleBack={group => this.handleGroup(group, true)} devices={showDevices} />
                 {/* 手机列表 */}
-                <Cards devices={showDevices} onChecked={this.handleCardCheck} sendFunc={this.sendMessage} />
+                <Cards devices={showDevices} currentGroup={currentGroup} onChecked={this.handleCardCheck} sendFunc={this.sendMessage}  handleDevice={this.groupsRef && this.groupsRef.handleDevice}/>
             </div>
             {/* 命令控制面板 */}
             <ControlPanel sendCmd={this.handleBottomObj} sendFunc={this.sendMessage} />
