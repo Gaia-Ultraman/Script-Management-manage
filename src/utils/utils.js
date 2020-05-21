@@ -57,3 +57,6 @@ export const getRouteAuthority = (path, routeData) => {
   });
   return authorities;
 };
+
+
+export const addressHeader = 'http://localhost:99'

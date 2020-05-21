@@ -145,7 +145,6 @@ export default class App extends React.Component {
 
     //★★★★★★★★★筛选★★★★★★★★★
     handleGroup = (group, removeCheck) => {
-        debugger
         console.log("group", group)
         const { allDevices, showDevices } = this.state
         let newShowDevices = [];
@@ -173,6 +172,8 @@ export default class App extends React.Component {
         //filter 返回的子元素是引用类型时，需要深拷贝一下数组，不然会影响原数据
         if (group.type == 1) {
             newShowDevices = cloneAllDevices.filter(v => {
+                //如果没有data字段
+                if(!v.data)return false
                 return Object.keys(group.regs).reduce((pre, cur, index) => {
                     return pre && group.regs[cur].reduce((p,c,i)=>{
                         if(!c)return p
@@ -207,30 +208,8 @@ export default class App extends React.Component {
     handleBottomObj = (msg) => {
         const { showDevices } = this.state
         let ids = showDevices.filter(v => v.checked).map(v => v.id)
-        console.log("BottomCB", type, data)
-        if (type == "执行终端命令") {
-            if (!data || data == '') return message.error("命令不能是空");
-            this.sendMessage({ codeType: "system", cmd: "runTerminalCmd", TerminalCmd: data }, { group: "phone", id: ids })
-        } else if (type == "一键启动") {
-            if (!data.scriptName || data.scriptName == '') return message.error("脚本名称不能是空");
-            this.sendMessage({ codeType: "touchelf", cmd: "runScript", scriptName: data.scriptName, UI: data.param }, { group: "phone", id: ids })
-        } else if (type == "一键停止") {
-            this.sendMessage({ codeType: "touchelf", cmd: "stopScript" }, { group: "phone", id: ids })
-        } else if (type == "执行中控命令") {
-            if (!data || data == '') return message.error("命令不能是空");
-            let msg = {}
-            try {
-                msg = JSON.parse(data);
-                if (!msg.codeType || !msg.cmd) return message.error("格式错误");
-                this.sendMessage(msg, { group: "phone", id: ids })
-            } catch (err) {
-                return message.error("格式错误");
-            }
-        } else if (type == "一键下载") {
-            if (!data.downLoadUrl) return message.error("下载链接不能是空");
-            data.downLoadPath = data.downLoadPath ? data.downLoadPath : '/var/WebConsole/downCache/';
-            this.sendMessage({ codeType: "file", cmd: "curlDown", url: data.downLoadUrl, path: data.downLoadPath }, { group: "phone", id: ids })
-        }
+        if (ids.length<1) return message.error("未选择设备")
+        this.sendMessage(msg, { group: "phone", id: ids })
     }
 
     //调用websocket发送消息 
@@ -301,7 +280,7 @@ export default class App extends React.Component {
                 <Cards devices={showDevices} onChecked={this.handleCardCheck} sendFunc={this.sendMessage} />
             </div>
             {/* 命令控制面板 */}
-            <ControlPanel callBack={this.handleBottomObj} sendFunc={this.sendMessage} />
+            <ControlPanel sendCmd={this.handleBottomObj} sendFunc={this.sendMessage} />
         </div>
     }
 }

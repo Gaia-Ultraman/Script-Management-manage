@@ -1,23 +1,27 @@
 import React, { Component } from "react";
-import { Checkbox, Card, Pagination, Modal, message,Tooltip  } from "antd"
+import { Checkbox, Card, Pagination, Modal, message, Tooltip } from "antd"
 import { ReloadOutlined } from "@ant-design/icons"
-import {getLocalPic,setLocalPic} from "@/utils/picture"
+import { getLocalPic, setLocalPic } from "@/utils/picture"
+import { getLogs } from "@/services/log"
 import styles from "./index.less"
 const { Meta } = Card
 
 export default class MyCard extends React.Component {
 
-    timer=""
+    timer = ""
     state = {
         page: 1,
         pageSize: 10,
         visible: false,
         //放大的视图
         src: "",
-        name: ""
+        name: "",
+        id: "",
+        //日志列表
+        data: []
     }
     //已经发送过命令的ID列表
-    hasGetList=[]
+    hasGetList = []
 
     handleCheck = (e, id) => {
         const { onChecked, devices } = this.props
@@ -36,7 +40,7 @@ export default class MyCard extends React.Component {
     //     })
     //     this.sendData({ type: "getPic", data: devices.slice((page - 1) * pageSize, page * pageSize).map(v => v.id) })
     // }
-    
+
     sendData = (data, dis) => {
         const { sendFunc } = this.props
         sendFunc(data, dis)
@@ -44,7 +48,10 @@ export default class MyCard extends React.Component {
 
     handleAmplification = (value) => {
         if (getLocalPic(value.id)) {
-            this.setState({ visible: true, ...value,src:getLocalPic(value.id) })
+            this.setState({ visible: true, ...value, src: getLocalPic(value.id) }, () => {
+                this.getLogs(value.id, 10)
+            })
+
         } else {
             message.error("没有可以预览的截图！")
         }
@@ -55,7 +62,7 @@ export default class MyCard extends React.Component {
         this.getPic(id)
     }
 
-   
+
     componentDidMount() {
         this.timer = setInterval(() => {
             const { devices } = this.props
@@ -63,7 +70,7 @@ export default class MyCard extends React.Component {
                 for (let i = 0; i < devices.length; i++) {
                     if (devices[i].src == undefined) {
                         //是否已经发送过命令
-                        if(this.hasGetList.indexOf(devices[i].id) ==-1){
+                        if (this.hasGetList.indexOf(devices[i].id) == -1) {
                             this.hasGetList.push(devices[i].id)
                             this.getPic(devices[i].id)
                             break;
@@ -74,7 +81,7 @@ export default class MyCard extends React.Component {
         }, 200)
     }
 
-    componentWillUnmount(){
+    componentWillUnmount() {
         this.timer && clearInterval(this.timer)
     }
 
@@ -82,10 +89,21 @@ export default class MyCard extends React.Component {
         this.sendData({ codeType: "device", cmd: "getSnapshot" }, { group: "phone", id: id })
     }
 
+    getLogs = (id, limit) => {
+        const { visible } = this.state
+        if (!visible) return
+        getLogs(id, limit).then(res => {
+            console.log("Res", res)
+            if (res.succes) {
+                this.setState({ data: res.data })
+            }
+        })
+    }
+
 
     render() {
         const { devices } = this.props
-        const { page, pageSize, src, name, visible } = this.state
+        const { page, pageSize, src, name, id, visible, data } = this.state
         return (
             <div className={styles.cardContainer}>
                 <div className={styles.cards}>
@@ -111,7 +129,7 @@ export default class MyCard extends React.Component {
                                     description={<Tooltip title={value.data ? value.data.retMsg : ""}>
                                         <span>{value.data ? value.data.retMsg : ""}</span>
                                     </Tooltip>
-                                        
+
                                     }
                                 />
                             </Card>
@@ -124,8 +142,17 @@ export default class MyCard extends React.Component {
                     visible={visible}
                     onCancel={() => { this.setState({ visible: false }) }}
                     footer={null}
+                    width={'800px'}
                 >
-                    <img src={src} style={{ width: "100%" }}></img>
+                    <div className={styles.modalContainer}>
+                        <img src={src} style={{ width: "320px",height:"560px" }}></img>
+                        <ul style={{ width: "auto",height:"560px" ,overflow:"auto"}}>
+                            {data && data.length ? data.map((v) => {
+                                return <li>{v.data}</li>
+                            }) : null}
+                        </ul>
+                    </div>
+
                 </Modal>
             </div>
         );

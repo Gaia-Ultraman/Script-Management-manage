@@ -1,7 +1,6 @@
 // https://umijs.org/config/
 import { defineConfig, utils } from 'umi';
 import defaultSettings from './defaultSettings';
-import proxy from './proxy';
 import webpackPlugin from './plugin.config';
 const { winPath } = utils; // preview.pro.ant.design only do not use in your production ;
 // preview.pro.ant.design 专用环境变量，请不要在你的项目中使用它。
@@ -81,6 +80,5 @@ export default defineConfig({
   },
   //在这里配置publicPath 生效，chainWebpack里面配置的会被覆盖？不生效
   publicPath: REACT_APP_ENV === 'pre'?"./":'/',
-  proxy: proxy[REACT_APP_ENV || 'dev'],
   chainWebpack: webpackPlugin,
 });

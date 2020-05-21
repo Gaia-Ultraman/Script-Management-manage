@@ -44,7 +44,7 @@ export default class Groups extends React.Component {
     }
     handleOk = () => {
         //type 为1是正则匹配[{name:"全部",type:1,regs:{}}]     为2时为手动勾选的[{name:"例子",type:2,data:["id-1","id-2"]}];    
-        const { handleBack } = this.props
+        const { handleBack,devices } = this.props
         const { name, type, regs } = this.state
         let result = null
         if (type == 1) {
@@ -89,16 +89,16 @@ export default class Groups extends React.Component {
                     {/* 正则表达式类型 */}
                     <div className={styles.modalLeft}>
                         <div className={styles.tip}>正则表达式筛选:</div>
-                        {groups.filter(v => v.name != "全部" && v.type == 1).map(v => <span onClick={()=>{this.setGroup(v)}} style={name==v.name?{color:"#1890ff"}:""}>{v.name}</span>)}
+                        {groups.filter(v => v.name != "全部" && v.type == 1).map(v => <div className={styles.nameItem} onClick={()=>{this.setGroup(v)}} style={name==v.name?{color:"#1890ff"}:{}}>{v.name}</div>)}
                     </div>
                     {/* 手动选择类型 */}
                     <div className={styles.modalRight}>
                         <div className={styles.tip}>手动选择:</div>
-                        {groups.filter(v => v.name != "全部" && v.type == 2).map(v => <span onClick={()=>{this.setGroup(v)}} style={name==v.name?{color:"#1890ff"}:""}>{v.name}</span>)}
+                        {groups.filter(v => v.name != "全部" && v.type == 2).map(v => <div className={styles.nameItem} onClick={()=>{this.setGroup(v)}} style={name==v.name?{color:"#1890ff"}:{}}>{v.name}</div>)}
                     </div>
                 </div>
                 <Divider />
-                <Input className={styles.item} placeholder="请输入需分组名字！" onChange={(e) => { this.setState({ name: e.target.value }) }} />
+                <Input className={styles.item} placeholder="请输入需分组名字！" value={name} onChange={(e) => { this.setState({ name: e.target.value }) }} />
                 <Select className={styles.item} value={type} style={{ width: 180 }} onChange={(type) => { this.setState({ type }) }}>
                     <Option value={1}>正则表达式筛选</Option>
                     <Option value={2}>手动点击筛选</Option>
