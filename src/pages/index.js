@@ -4,6 +4,7 @@ import { MobileOutlined, DatabaseOutlined, SnippetsOutlined } from '@ant-design/
 import DataNodes from "./data"
 import LogNodes from "./log"
 import PicNodes from "./pic"
+import HelpNodes from "./help"
 import "./test"
 import styles from "./index.less"
 const { SubMenu } = Menu;
@@ -33,7 +34,17 @@ export default class App extends React.Component {
                         key="3"
                     >
                         <LogNodes />
+                        
                     </TabPane>
+
+                    <TabPane
+                        tab={<span><SnippetsOutlined />帮助文档</span>}
+                        key="4"
+                    >
+                        <HelpNodes />
+                        
+                    </TabPane>
+
                 </Tabs>
             </>
         );

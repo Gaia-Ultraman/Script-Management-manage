@@ -115,6 +115,7 @@ export default class App extends React.Component {
             //接受来自手机的消息
             else if (result.from && result.from.group == "phone") {
                 this.results.push(result)
+                
             }
         });
         this.ws.addEventListener('error', (event) => {

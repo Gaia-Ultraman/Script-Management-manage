@@ -107,6 +107,28 @@ export default class MyCard extends React.Component {
         handleDevice(group, ids, add)
     }
 
+    //处理显示消息
+    handleDescription = (value) => {
+        let  text = ""
+        //刚开始连接设备的时候没有data段
+        if (value.data) {
+            var msgType = value.data.msgType;
+            if (msgType && (msgType == "string" || msgType == "number" || msgType == "boolean")) {
+                text=value.data.retMsg
+                if (value.data.cmd=="ret_runTerminalCmd"){
+                    let str=value.data.retMsg
+                    text=str.replace(/\n/g,"\r\n")
+                }
+            }else{
+                text=JSON.stringify(value.data.retMsg)
+            }
+        }
+        return <Tooltip title={text}>
+            <span>{text}</span>
+        </Tooltip>
+    }
+
+
     render() {
         const { devices, currentGroup } = this.props
         const { page, pageSize, src, name, id, visible, data } = this.state
@@ -146,11 +168,7 @@ export default class MyCard extends React.Component {
                                 }>
                                 <Meta
                                     title={<Checkbox checked={value.checked} onClick={(e) => { this.handleCheck(e, value.id) }}>{value.name}</Checkbox>}
-                                    description={<Tooltip title={value.data ? value.data.retMsg : ""}>
-                                        <span>{value.data ? value.data.retMsg : ""}</span>
-                                    </Tooltip>
-
-                                    }
+                                    description={this.handleDescription(value)}
                                 />
                             </Card>
                         })
