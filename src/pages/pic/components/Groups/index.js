@@ -37,10 +37,6 @@ export default class Groups extends React.Component {
     handleDevice = (group, ids, add) => {
         console.log("删除设备", group, ids, add)
         const { handleBack } = this.props
-        if (group && group.type == 1) {
-            message.error('不可操作正则表达式分组设备!')
-            return
-        }
         if (!(group.data instanceof Array)) {
             message.error('未知错误!')
             return
