@@ -4,7 +4,7 @@ import Cards from "./components/Cards"
 import ControlPanel from "./components/ControlPanel"
 import Groups from "./components/Groups"
 import { PlusOutlined } from '@ant-design/icons';
-import { getGroup, deletGroup } from "@/utils/group"
+import { getGroup, deletGroup, setGroup } from "@/utils/group"
 import { getLocalPic, setLocalPic } from "@/utils/picture"
 
 const { Option } = Select;
@@ -37,36 +37,71 @@ export default class App extends React.Component {
         let url = localStorage.getItem("url")
         this.setState({ url })
 
+        /********************************** 消息处理  *****************************/
         this.timer = setInterval(() => {
-            const { showDevices, allDevices } = this.state
+            const { currentGroup, showDevices, allDevices } = this.state
             if (this.results.length) {
                 this.results.forEach(result => {
-                    if (result.data.msgType != 'base64') {
-                        //全部设备里面的日志更新
-                        allDevices.forEach(v => {
-                            if (v.id == result.from.id) {
-                                v.data = result.data
+                    //获得所有设备，更新设备状态
+                    if (result.from && result.from.group == "server") {
+                        if (result.data && result.data.cmd == "getAllOnline") {
+                            this.setState({ showDevices: result.data.retMsg, allDevices: result.data.retMsg, currentGroup: "全部", checked: false })
+                        } else if (result.data && result.data.cmd == "online") {
+                            allDevices.push(result.data.retMsg)
+                        } else if (result.data && result.data.cmd == "offline") {
+                            for (let i = 0; i < allDevices.length; i++) {
+                                if (allDevices[i].id == result.data.retMsg.id) {
+                                    allDevices.splice(i, 1)
+                                }
                             }
-                        })
-                        // 当前设备里的实时日志更新
-                        showDevices.forEach(v => {
-                            if (v.id == result.from.id) {
-                                v.data = result.data
-                            }
-                        })
-                    }
-                    //获取图片
-                    if (result.data && result.data.cmd == "updateSnapshot") {
-                        //客户端截图成功
-                        if (result.data.msgType == 'base64') {
-                            setLocalPic(result.from.id, "data:image/jpeg;base64," + result.data.retMsg)
                         }
                     }
+                    //接受来自手机的消息
+                    else if (result.from && result.from.group == "phone") {
+                        if (result.data.msgType != 'base64') {
+                            //全部设备里面的日志更新
+                            allDevices.forEach(v => {
+                                if (v.id == result.from.id) {
+                                    v.data = result.data
+                                }
+                            })
+                            // 当前设备里的实时日志更新
+                            showDevices.forEach(v => {
+                                if (v.id == result.from.id) {
+                                    v.data = result.data
+                                }
+                            })
+                        }
+                        //获取图片
+                        if (result.data && result.data.cmd == "updateSnapshot") {
+                            //客户端截图成功
+                            if (result.data.msgType == 'base64') {
+                                setLocalPic(result.from.id, "data:image/jpeg;base64," + result.data.retMsg)
+                            }
+                        }
+                    }
+                    //如果是正则就会在每个消息进来进行分组
+                    if (currentGroup.type == 1) {
+                        this.handleGroup(currentGroup)
+                    } else {
+                        this.setState({
+                            allDevices: JSON.parse(JSON.stringify(allDevices)),
+                            showDevices: JSON.parse(JSON.stringify(showDevices)),
+                        })
+                    }
+
                 })
-                this.setState({
-                    allDevices: JSON.parse(JSON.stringify(allDevices)),
-                    showDevices: JSON.parse(JSON.stringify(showDevices)),
-                })
+
+                //上线的消息集合
+                let onLineResults = this.results.filter(result => result.data && result.data.cmd == 'online')
+                //下线的消息集合
+                let offLineResult = this.results.filter(result => result.data && result.data.cmd == 'offline')
+                if (onLineResults.length) {
+                    onLineResults.length > 1 ? message.success(`${onLineResults.length}台设备 上线`) : message.success(`${onLineResults[0].data.retMsg.name} 上线`)
+                }
+                if (offLineResult.length) {
+                    offLineResult.length > 1 ? message.error(`${offLineResult.length}台设备 下线`) : message.error(`${offLineResult[0].data.retMsg.name} 下线`)
+                }
             }
             this.results = []
         }, 1000)
@@ -93,30 +128,8 @@ export default class App extends React.Component {
                 message.error("返回消息解析错误:", err)
                 return
             }
-            const { currentGroup, showDevices, allDevices } = this.state
-
-            //获得所有设备，更新设备状态
-            if (result.from && result.from.group == "server") {
-                if (result.data && result.data.cmd == "getAllOnline") {
-                    this.setState({ showDevices: result.data.retMsg, allDevices: result.data.retMsg, currentGroup: "全部", checked: false })
-                } else if (result.data && result.data.cmd == "online") {
-                    message.success(`${result.data.retMsg.name} 上线`)
-                    allDevices.push(result.data.retMsg)
-                } else if (result.data && result.data.cmd == "offline") {
-                    message.error(`${result.data.retMsg.name} 下线`)
-                    for (let i = 0; i < allDevices.length; i++) {
-                        if (allDevices[i].id == result.data.retMsg.id) {
-                            allDevices.splice(i, 1)
-                        }
-                    }
-                }
-                this.handleGroup(currentGroup)
-            }
-            //接受来自手机的消息
-            else if (result.from && result.from.group == "phone") {
-                this.results.push(result)
-                
-            }
+            //将所有收到的消息保存起来 
+            this.results.push(result)
         });
         this.ws.addEventListener('error', (event) => {
             console.log('Error', event);
@@ -172,20 +185,22 @@ export default class App extends React.Component {
 
         //filter 返回的子元素是引用类型时，需要深拷贝一下数组，不然会影响原数据
         if (group.type == 1) {
-            newShowDevices = cloneAllDevices.filter(v => {
+            //满足条件的设备
+            let tempDevices = cloneAllDevices.filter(v => {
                 //如果没有data字段
-                if(!v.data)return false
+                if (!v.data) return false
                 return Object.keys(group.regs).reduce((pre, cur, index) => {
-                    return pre && group.regs[cur].reduce((p,c,i)=>{
-                        if(!c)return p
+                    return pre && group.regs[cur].reduce((p, c, i) => {
+                        if (!c) return p
                         let reg = new RegExp(c)
                         return p && reg.test(v.data[cur])
-                    },true)
+                    }, true)
                 }, true)
             })
-        } else if (group.type == 2) {
-            newShowDevices = cloneAllDevices.filter(v => { return group.data.indexOf(v.id) != -1 })
+            group.data = [...new Set(tempDevices.map(v => v.id).concat(group.data))]
+            setGroup(group)
         }
+        newShowDevices = cloneAllDevices.filter(v => { return group.data.indexOf(v.id) != -1 })
         this.setState({ showDevices: newShowDevices, currentGroup: group, checked: false })
     }
 
@@ -209,7 +224,7 @@ export default class App extends React.Component {
     handleBottomObj = (msg) => {
         const { showDevices } = this.state
         let ids = showDevices.filter(v => v.checked).map(v => v.id)
-        if (ids.length<1) return message.error("未选择设备")
+        if (ids.length < 1) return message.error("未选择设备")
         this.sendMessage(msg, { group: "phone", id: ids })
     }
 
@@ -257,7 +272,7 @@ export default class App extends React.Component {
     }
 
     render() {
-        const { checked, showDevices, hasConnect, url ,currentGroup} = this.state
+        const { checked, showDevices, hasConnect, url, currentGroup } = this.state
         return <div className={styles.container}>
             <div className={styles.header}>
                 <div>
@@ -276,9 +291,9 @@ export default class App extends React.Component {
 
             <div className={styles.content}>
                 {/* 左边分组 */}
-                <Groups ref={ref=>{this.groupsRef=ref}} handleBack={group => this.handleGroup(group, true)} devices={showDevices} />
+                <Groups ref={ref => { this.groupsRef = ref }} handleBack={group => this.handleGroup(group, true)} devices={showDevices} />
                 {/* 手机列表 */}
-                <Cards devices={showDevices} currentGroup={currentGroup} onChecked={this.handleCardCheck} sendFunc={this.sendMessage}  handleDevice={this.groupsRef && this.groupsRef.handleDevice}/>
+                <Cards devices={showDevices} currentGroup={currentGroup} onChecked={this.handleCardCheck} sendFunc={this.sendMessage} handleDevice={this.groupsRef && this.groupsRef.handleDevice} />
             </div>
             {/* 命令控制面板 */}
             <ControlPanel sendCmd={this.handleBottomObj} sendFunc={this.sendMessage} />
