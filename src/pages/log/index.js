@@ -15,7 +15,7 @@ export default class App extends React.Component {
         value: ""
     };
     componentDidMount() {
-        this.connect()
+        //this.connect()
     }
 
     componentWillUnmount() {

@@ -9,42 +9,37 @@ import "./test"
 import styles from "./index.less"
 const { SubMenu } = Menu;
 const { TabPane } = Tabs
+const items = [{
+    icon: <MobileOutlined />,
+    name: '实时截图',
+    children: <PicNodes />,
+}, {
+    icon: <DatabaseOutlined />,
+    name: '数据中心',
+    children: <DataNodes />,
+}, {
+    icon: <SnippetsOutlined />,
+    name: '执行日志',
+    children: <LogNodes />,
+}, {
+    icon: <SnippetsOutlined />,
+    name: '帮助文档',
+    children: <HelpNodes />,
+}]
 export default class App extends React.Component {
-    
+
     render() {
         return (
             <>
                 <Tabs defaultActiveKey="1">
-                    <TabPane
-                        tab={<span> <MobileOutlined />实时截图</span>}
-                        key="1"
-                    >
-                        <PicNodes />
-                    </TabPane>
-
-                    <TabPane
-                        tab={<span><DatabaseOutlined /> 数据中心</span>}
-                        key="2"
-                    >
-                        <DataNodes />
-                    </TabPane>
-
-                    <TabPane
-                        tab={<span><SnippetsOutlined />执行日志</span>}
-                        key="3"
-                    >
-                        <LogNodes />
-                        
-                    </TabPane>
-
-                    <TabPane
-                        tab={<span><SnippetsOutlined />帮助文档</span>}
-                        key="4"
-                    >
-                        <HelpNodes />
-                        
-                    </TabPane>
-
+                    {items.map(v => {
+                        return <TabPane
+                            tab={<span> {v.icon}{v.name}</span>}
+                            key={v.name}
+                        >
+                            {v.children}
+                        </TabPane>
+                    })}
                 </Tabs>
             </>
         );
