@@ -80,10 +80,9 @@ export default class App extends React.Component {
                             }
                         }
                     }
-                   
                 })
-                 //如果是正则就会在每个消息进来进行分组
-                 if (currentGroup.type == 1) {
+                //如果是正则就会在每个消息进来进行分组
+                if (currentGroup.type == 1) {
                     this.handleGroup(currentGroup)
                 } else {
                     this.setState({
@@ -104,7 +103,7 @@ export default class App extends React.Component {
                 }
             }
             this.results = []
-        }, 2000)
+        }, 3000)
     }
 
     componentWillUnmount() {
@@ -185,20 +184,41 @@ export default class App extends React.Component {
 
         //filter 返回的子元素是引用类型时，需要深拷贝一下数组，不然会影响原数据
         if (group.type == 1) {
-            //满足条件的设备
-            let tempDevices = cloneAllDevices.filter(v => {
+            //满足添加条件的设备
+            let addDevices = cloneAllDevices.filter(v => {
                 //如果没有data字段
                 if (!v.data) return false
-                return Object.keys(group.regs).reduce((pre, cur, index) => {
-                    return pre && group.regs[cur].reduce((p, c, i) => {
+                return Object.keys(group.addRegs).reduce((pre, cur, index) => {
+                    return pre && group.addRegs[cur].reduce((p, c, i) => {
                         if (!c) return p
                         let reg = new RegExp(c)
                         return p && reg.test(v.data[cur])
                     }, true)
                 }, true)
             })
-            
-            group.data = [...new Set(tempDevices.map(v => v.id).concat(group.data))]
+            group.data = [...new Set(addDevices.map(v => v.id).concat(group.data))]
+            //满足删除条件的设备
+            let deleteDevices = cloneAllDevices.filter(v => {
+                //如果没有data字段
+                if (!v.data) return false
+                return Object.keys(group.deleteRegs).reduce((pre, cur, index) => {
+                    return pre && group.deleteRegs[cur].reduce((p, c, i) => {
+                        if (!c) return p
+                        let reg = new RegExp(c)
+                        console.log("###",p && reg.test(v.data[cur]))
+                        return p && reg.test(v.data[cur])
+                    }, true)
+                }, true)
+            })
+            group.data=group.data.filter(id => {
+                let save = true
+                deleteDevices.forEach(value => {
+                    if (id == value.id) {
+                        save = false
+                    }
+                })
+                return save
+            })
             setGroup(group)
         }
         newShowDevices = cloneAllDevices.filter(v => { return group.data.indexOf(v.id) != -1 })

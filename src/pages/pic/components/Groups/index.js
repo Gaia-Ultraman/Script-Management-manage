@@ -13,7 +13,14 @@ export default class Groups extends React.Component {
         //表单数据
         name: "",
         type: 1,
-        regs: {
+        addRegs: {
+            codeType: [""],
+            cmd: [""],
+            retMsg: [""],
+            runState: [""],
+            msgType: [""]
+        },
+        deleteRegs: {
             codeType: [""],
             cmd: [""],
             retMsg: [""],
@@ -72,10 +79,10 @@ export default class Groups extends React.Component {
     handleOk = () => {
         //type 为1是正则匹配[{name:"全部",type:1,regs:{}}]     为2时为手动勾选的[{name:"例子",type:2,data:["id-1","id-2"]}];    
         const { handleBack, devices } = this.props
-        const { name, type, regs } = this.state
+        const { name, type, addRegs, deleteRegs} = this.state
         let result = null
         if (type == 1) {
-            result = setGroup({ name, type, regs })
+            result = setGroup({ name, type, addRegs, deleteRegs })
         } else {
             result = setGroup({ name, type, data: devices.filter(v => v.checked).map(v => v.id) })
         }
@@ -110,7 +117,7 @@ export default class Groups extends React.Component {
 
     render() {
         const { devices } = this.props
-        const { name, type, regs, currentGroup, visible, groups } = this.state
+        const { name, type, addRegs, deleteRegs, currentGroup, visible, groups } = this.state
         return (<>
             <div className={styles.groupList}>
                 {groups.map((value, i) => {
@@ -128,7 +135,7 @@ export default class Groups extends React.Component {
                     {/* 正则表达式类型 */}
                     <div className={styles.modalLeft}>
                         <div className={styles.tip}>正则表达式筛选:</div>
-                        {groups.filter(v => v.name != "全部" && v.type == 1).map(v => <div className={styles.nameItem} onClick={() => { this.setGroup(v) }} style={name == v.name ? { color: "#1890ff" } : {}}>{v.name}&nbsp;&nbsp;<CloseCircleTwoTone onClick={() => { this.deleteGroup(v.name) }} className={styles.deleteIcon} twoToneColor="#eb2f96" /></div>)}
+                        {groups.filter(v => v.name != "全部" && v.type == 1).map((v,i) => <div className={styles.nameItem} key={i} onClick={() => { this.setGroup(v) }} style={name == v.name ? { color: "#1890ff" } : {}}>{v.name}&nbsp;&nbsp;<CloseCircleTwoTone onClick={() => { this.deleteGroup(v.name) }} className={styles.deleteIcon} twoToneColor="#eb2f96" /></div>)}
                     </div>
                     {/* 手动选择类型 */}
                     <div className={styles.modalRight}>
@@ -143,11 +150,22 @@ export default class Groups extends React.Component {
                     <Option value={2}>手动点击筛选</Option>
                 </Select>
                 {type == 1 ? <div>
-                    {Object.keys(regs).map(key => {
+                    <div style={{fontSize:"18px",marginBottom:"5px",fontWeight:'600'}}>添加设备:</div>
+                    {Object.keys(addRegs).map(key => {
                         return <div key={key} style={{ paddingBottom: "5px" }}>
-                            {key}:{regs[key].map((v, i) => {
-                                return [<Input size="small" value={v} className={styles.regItem} onChange={(e) => { regs[key][i] = e.target.value; this.forceUpdate() }} />,
-                                regs[key].length - 1 == i ? <a onClick={() => { regs[key].push(""); this.forceUpdate() }}>增加</a> : <CloseCircleTwoTone onClick={() => { regs[key].splice(i, 1); this.forceUpdate() }} className={styles.deleteIcon} twoToneColor="#eb2f96" />]
+                            {key}:{addRegs[key].map((v, i) => {
+                                return [<Input size="small" value={v} className={styles.regItem} onChange={(e) => { addRegs[key][i] = e.target.value; this.forceUpdate() }} />,
+                                addRegs[key].length - 1 == i ? <a onClick={() => { addRegs[key].push(""); this.forceUpdate() }}>增加</a> : <CloseCircleTwoTone onClick={() => { addRegs[key].splice(i, 1); this.forceUpdate() }} className={styles.deleteIcon} twoToneColor="#eb2f96" />]
+                            })
+                            }
+                        </div>
+                    })}
+                    <div style={{fontSize:"18px",marginBottom:"5px",fontWeight:'600'}}>移除设备:</div>
+                    {Object.keys(deleteRegs).map(key => {
+                        return <div key={key} style={{ paddingBottom: "5px" }}>
+                            {key}:{deleteRegs[key].map((v, i) => {
+                                return [<Input size="small" value={v} className={styles.regItem} onChange={(e) => { deleteRegs[key][i] = e.target.value; this.forceUpdate() }} />,
+                                deleteRegs[key].length - 1 == i ? <a onClick={() => { deleteRegs[key].push(""); this.forceUpdate() }}>增加</a> : <CloseCircleTwoTone onClick={() => { deleteRegs[key].splice(i, 1); this.forceUpdate() }} className={styles.deleteIcon} twoToneColor="#eb2f96" />]
                             })
                             }
                         </div>

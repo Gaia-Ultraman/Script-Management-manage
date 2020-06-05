@@ -1,11 +1,17 @@
 import React, { Component } from "react";
 import { Checkbox, Card, Pagination, Modal, message, Tooltip, Popover, Popconfirm, Button } from "antd"
 import { ReloadOutlined, PlusOutlined, CloseOutlined } from "@ant-design/icons"
+// import { List } from 'react-virtualized';
 import { getLocalPic, setLocalPic } from "@/utils/picture"
 import { getGroup, deleteGroup, setGroup } from "@/utils/group"
 import { getLogs } from "@/services/log"
 import styles from "./index.less"
 const { Meta } = Card
+
+const list = [
+    'Brian Vaughn',
+    // And so on...
+];
 
 export default class MyCard extends React.Component {
 
@@ -109,18 +115,18 @@ export default class MyCard extends React.Component {
 
     //处理显示消息
     handleDescription = (value) => {
-        let  text = ""
+        let text = ""
         //刚开始连接设备的时候没有data段
         if (value.data) {
             var msgType = value.data.msgType;
             if (msgType && (msgType == "string" || msgType == "number" || msgType == "boolean")) {
-                text=value.data.retMsg
-                if (value.data.cmd=="ret_runTerminalCmd"){
-                    let str=value.data.retMsg
-                    text=str.replace(/\n/g,"\r\n")
+                text = value.data.retMsg
+                if (value.data.cmd == "ret_runTerminalCmd") {
+                    let str = value.data.retMsg
+                    text = str.replace(/\n/g, "\r\n")
                 }
-            }else{
-                text=JSON.stringify(value.data.retMsg)
+            } else {
+                text = JSON.stringify(value.data.retMsg)
             }
         }
         return <Tooltip title={text}>
@@ -128,6 +134,53 @@ export default class MyCard extends React.Component {
         </Tooltip>
     }
 
+    rowRenderer=({
+        key, // Unique key within array of rows
+        index, // Index of row within collection
+        isScrolling, // The List is currently being scrolled
+        isVisible, // This row is visible within the List (eg it is not an overscanned row)
+        style, // Style object to be applied to row (to position it)
+    })=> {
+        const { devices, currentGroup } = this.props
+        let value = devices[index]
+        console.log('@@@',value,key,index)
+        return (
+            <Card key={value.id}
+                style={{ width: 165, marginTop: "5px", marginLeft: "5px", marginRight: "5px" }}
+                cover={
+                    <div onClick={() => { this.handleAmplification(value) }}>
+                        <div className={styles.iconList} onClick={(e) => { e.stopPropagation() }}>
+                            <ReloadOutlined className={styles.icon} onClick={(e) => this.refresh(e, value.id)} />
+                            <Popover placement="right" title={"添加至分组"} content={getGroup().filter(v => v.type == 2).map(v => <div key={v.name} style={{ cursor: "pointer" }} onClick={() => { this.handleDevice(v, [value.id], true) }}>{v.name}</div>)} trigger="click">
+                                <PlusOutlined className={styles.icon} />
+                            </Popover>
+                            <Popconfirm
+                                title="确定从该分组中删除此设备吗？"
+                                placement="right"
+                                onConfirm={() => { this.handleDevice(currentGroup, [value.id], false) }}
+                                okText="是的"
+                                cancelText="再想想"
+                            >
+                                <CloseOutlined className={styles.icon} />
+                            </Popconfirm>,
+                    </div>
+                        {getLocalPic(value.id) ? <img
+                            style={{ width: 160, height: 280 }}
+                            alt="屏幕截图"
+                            src={getLocalPic(value.id)}
+                        /> : <div style={{ width: 160, height: 280, display: "flex", justifyContent: "center", alignItems: "center" }}>
+                                未获取截图
+                        </div>
+                        }
+                    </div>
+                }>
+                <Meta
+                    title={<Checkbox checked={value.checked} onClick={(e) => { this.handleCheck(e, value.id) }}>{value.name}</Checkbox>}
+                    description={this.handleDescription(value)}
+                />
+            </Card>
+        );
+    }
 
     render() {
         const { devices, currentGroup } = this.props
@@ -135,6 +188,17 @@ export default class MyCard extends React.Component {
         return (
             <div className={styles.cardContainer}>
                 <div className={styles.cards}>
+                    {/* 虚拟列表优化性能 TODO */}
+                    {/* {
+                        devices.length ? <List
+                            width={1000}
+                            height={1000}
+                            rowHeight={100}
+                            rowCount={devices.length}
+                            rowRenderer={this.rowRenderer}
+                        /> : null
+                    } */}
+
                     {
                         devices.map(value => {
                             return <Card key={value.id}
