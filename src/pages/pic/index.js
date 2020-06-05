@@ -80,17 +80,17 @@ export default class App extends React.Component {
                             }
                         }
                     }
-                    //如果是正则就会在每个消息进来进行分组
-                    if (currentGroup.type == 1) {
-                        this.handleGroup(currentGroup)
-                    } else {
-                        this.setState({
-                            allDevices: JSON.parse(JSON.stringify(allDevices)),
-                            showDevices: JSON.parse(JSON.stringify(showDevices)),
-                        })
-                    }
-
+                   
                 })
+                 //如果是正则就会在每个消息进来进行分组
+                 if (currentGroup.type == 1) {
+                    this.handleGroup(currentGroup)
+                } else {
+                    this.setState({
+                        allDevices: JSON.parse(JSON.stringify(allDevices)),
+                        showDevices: JSON.parse(JSON.stringify(showDevices)),
+                    })
+                }
 
                 //上线的消息集合
                 let onLineResults = this.results.filter(result => result.data && result.data.cmd == 'online')
@@ -104,7 +104,7 @@ export default class App extends React.Component {
                 }
             }
             this.results = []
-        }, 1000)
+        }, 2000)
     }
 
     componentWillUnmount() {
@@ -197,6 +197,7 @@ export default class App extends React.Component {
                     }, true)
                 }, true)
             })
+            
             group.data = [...new Set(tempDevices.map(v => v.id).concat(group.data))]
             setGroup(group)
         }
