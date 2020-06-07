@@ -158,7 +158,6 @@ export default class App extends React.Component {
 
     //★★★★★★★★★筛选★★★★★★★★★
     handleGroup = (group, removeCheck) => {
-        console.log("group", group)
         const { allDevices, showDevices } = this.state
         let newShowDevices = [];
         //是否需要去掉checked属性
@@ -197,28 +196,42 @@ export default class App extends React.Component {
                 }, true)
             })
             group.data = [...new Set(addDevices.map(v => v.id).concat(group.data))]
-            //满足删除条件的设备
-            let deleteDevices = cloneAllDevices.filter(v => {
-                //如果没有data字段
-                if (!v.data) return false
-                return Object.keys(group.deleteRegs).reduce((pre, cur, index) => {
-                    return pre && group.deleteRegs[cur].reduce((p, c, i) => {
-                        if (!c) return p
-                        let reg = new RegExp(c)
-                        console.log("###",p && reg.test(v.data[cur]))
-                        return p && reg.test(v.data[cur])
+
+            //如果删除的正则全部为空
+            let empty = true
+            Object.keys(group.deleteRegs).forEach(key => {
+                if (group.deleteRegs[key][0] == '') {
+                    empty = empty && true
+                } else {
+                    empty = false
+                }
+            })
+            if (!empty) {
+                //满足删除条件的设备
+                let deleteDevices = cloneAllDevices.filter(v => {
+                    //如果没有data字段
+                    if (!v.data) return false
+                    return Object.keys(group.deleteRegs).reduce((pre, cur, index) => {
+                        return pre && group.deleteRegs[cur].reduce((p, c, i) => {
+                            if (!c) return p
+                            let reg = new RegExp(c)
+                            console.log("###", p && reg.test(v.data[cur]))
+                            return p && reg.test(v.data[cur])
+                        }, true)
                     }, true)
-                }, true)
-            })
-            group.data=group.data.filter(id => {
-                let save = true
-                deleteDevices.forEach(value => {
-                    if (id == value.id) {
-                        save = false
-                    }
                 })
-                return save
-            })
+                group.data = group.data.filter(id => {
+                    let save = true
+                    deleteDevices.forEach(value => {
+                        if (id == value.id) {
+                            save = false
+                        }
+                    })
+                    return save
+                })
+            }
+
+
             setGroup(group)
         }
         newShowDevices = cloneAllDevices.filter(v => { return group.data.indexOf(v.id) != -1 })
