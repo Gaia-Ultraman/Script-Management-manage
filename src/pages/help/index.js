@@ -10,7 +10,7 @@ export default class HelpDocument extends React.Component {
 
     render() {
         return (
-            <div>帮助文档</div>
+            <div>帮助文档正在编写</div>
         );
     }
 }
