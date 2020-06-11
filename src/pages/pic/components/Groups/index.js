@@ -59,6 +59,7 @@ export default class Groups extends React.Component {
         if (result) {
             this.setState({
                 groups: result,
+                currentGroup: group
             }, () => { handleBack(group); message.success("操作成功!") })
         } else {
             message.success("操作失败!")
@@ -79,11 +80,11 @@ export default class Groups extends React.Component {
     handleOk = () => {
         //type 为1是正则匹配[{name:"全部",type:1}]     为2时为手动勾选的[{name:"例子",type:2,data:["id-1","id-2"]}];    
         const { handleBack, devices } = this.props
-        const { name, type, addRegs, deleteRegs} = this.state
+        const { name, type, addRegs, deleteRegs } = this.state
         let result = null
 
         if (type == 1) {
-            result = setGroup({ name, type, addRegs, deleteRegs ,})
+            result = setGroup({ name, type, addRegs, deleteRegs, })
         } else {
             result = setGroup({ name, type, data: devices.filter(v => v.checked).map(v => v.id) })
         }
@@ -136,7 +137,7 @@ export default class Groups extends React.Component {
                     {/* 正则表达式类型 */}
                     <div className={styles.modalLeft}>
                         <div className={styles.tip}>正则表达式筛选:</div>
-                        {groups.filter(v => v.name != "全部" && v.type == 1).map((v,i) => <div className={styles.nameItem} key={i} onClick={() => { this.setGroup(v) }} style={name == v.name ? { color: "#1890ff" } : {}}>{v.name}&nbsp;&nbsp;<CloseCircleTwoTone onClick={() => { this.deleteGroup(v.name) }} className={styles.deleteIcon} twoToneColor="#eb2f96" /></div>)}
+                        {groups.filter(v => v.name != "全部" && v.type == 1).map((v, i) => <div className={styles.nameItem} key={i} onClick={() => { this.setGroup(v) }} style={name == v.name ? { color: "#1890ff" } : {}}>{v.name}&nbsp;&nbsp;<CloseCircleTwoTone onClick={() => { this.deleteGroup(v.name) }} className={styles.deleteIcon} twoToneColor="#eb2f96" /></div>)}
                     </div>
                     {/* 手动选择类型 */}
                     <div className={styles.modalRight}>
@@ -151,7 +152,7 @@ export default class Groups extends React.Component {
                     <Option value={2}>手动点击筛选</Option>
                 </Select>
                 {type == 1 ? <div>
-                    <div style={{fontSize:"18px",marginBottom:"5px",fontWeight:'600'}}>添加设备:</div>
+                    <div style={{ fontSize: "18px", marginBottom: "5px", fontWeight: '600' }}>添加设备:</div>
                     {Object.keys(addRegs).map(key => {
                         return <div key={key} style={{ paddingBottom: "5px" }}>
                             {key}:{addRegs[key].map((v, i) => {
@@ -161,7 +162,7 @@ export default class Groups extends React.Component {
                             }
                         </div>
                     })}
-                    <div style={{fontSize:"18px",marginBottom:"5px",fontWeight:'600'}}>移除设备:</div>
+                    <div style={{ fontSize: "18px", marginBottom: "5px", fontWeight: '600' }}>移除设备:</div>
                     {Object.keys(deleteRegs).map(key => {
                         return <div key={key} style={{ paddingBottom: "5px" }}>
                             {key}:{deleteRegs[key].map((v, i) => {
