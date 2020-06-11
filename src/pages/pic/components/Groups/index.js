@@ -49,7 +49,7 @@ export default class Groups extends React.Component {
             return
         }
         if (add) {
-            group.data = group.data.concant(ids)
+            group.data = group.data.concat(ids)
         } else {
             group.data = group.data.filter(v => {
                 return ids.indexOf(v) == -1
@@ -77,12 +77,13 @@ export default class Groups extends React.Component {
     }
     //点击OK
     handleOk = () => {
-        //type 为1是正则匹配[{name:"全部",type:1,regs:{}}]     为2时为手动勾选的[{name:"例子",type:2,data:["id-1","id-2"]}];    
+        //type 为1是正则匹配[{name:"全部",type:1}]     为2时为手动勾选的[{name:"例子",type:2,data:["id-1","id-2"]}];    
         const { handleBack, devices } = this.props
         const { name, type, addRegs, deleteRegs} = this.state
         let result = null
+
         if (type == 1) {
-            result = setGroup({ name, type, addRegs, deleteRegs })
+            result = setGroup({ name, type, addRegs, deleteRegs ,})
         } else {
             result = setGroup({ name, type, data: devices.filter(v => v.checked).map(v => v.id) })
         }

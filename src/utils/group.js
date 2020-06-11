@@ -1,6 +1,6 @@
 import{zip,unzip} from "./gzip"
 let version="group_v3"
-//type 为1是正则匹配[{name:"全部",type:1,addRegs:{},data:[]}]     为2时为手动勾选的[{name:"例子",type:2,data:["id-1","id-2"]}];    
+//type 为1是正则匹配[{name:"全部",type:1,addRegs:{},deleteRegs:{},data:[]}]     为2时为手动勾选的[{name:"例子",type:2,data:["id-1","id-2"]}];    
 let defaultGroup=[{name:"全部",type:1,addRegs:{},deleteRegs:{},data:[]}];
 function getGroup(){
     try{
