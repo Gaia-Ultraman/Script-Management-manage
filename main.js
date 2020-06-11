@@ -7,13 +7,14 @@ function createWindow() {
         icon:"./public/icon.png"
     })
 
-    //本地开发
-    win.loadURL('http://localhost:8000/');
-    //默认开启调试工具
+    
+    //*****************************本地开发****************************//
+    // win.loadURL('http://localhost:8000/');
+    // //默认开启调试工具
     win.webContents.openDevTools()
 
-    //发布时
-    // win.loadURL(`file://${__dirname}/dist/index.html`)
+    //*****************************发布时****************************//
+    win.loadURL(`file://${__dirname}/dist/index.html`)
 
     win.on('closed', function () {
         win = null

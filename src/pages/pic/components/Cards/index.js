@@ -250,8 +250,8 @@ export default class MyCard extends React.Component {
                     <div className={styles.modalContainer}>
                         <img src={src} style={{ width: "320px", height: "560px" }}></img>
                         <ul style={{ width: "auto", height: "560px", overflow: "auto" }}>
-                            {data && data.length ? data.map((v) => {
-                                return <li>{v.data}</li>
+                            {data && data.length ? data.reverse().map((v,i) => {
+                                return <li key={i}>{v.data}</li>
                             }) : null}
                         </ul>
                     </div>

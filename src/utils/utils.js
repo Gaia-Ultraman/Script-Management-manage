@@ -59,4 +59,4 @@ export const getRouteAuthority = (path, routeData) => {
 };
 
 
-export const addressHeader = 'http://localhost:99'
+export const addressHeader = process.env.NODE_ENV=='development'?"http://localhost:14755":window.location.origin

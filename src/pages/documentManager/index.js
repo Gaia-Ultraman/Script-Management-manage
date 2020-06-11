@@ -6,7 +6,7 @@ const styles = require('./index.less')
 let Mess = []
 
 
-export default class App extends React.Component {
+ class App extends React.Component {
     ws = null
     state = {
         tempId: new Date().getTime(),
@@ -15,7 +15,7 @@ export default class App extends React.Component {
         value: ""
     };
     componentDidMount() {
-        this.connect()
+        //this.connect()
     }
 
     componentWillUnmount() {
@@ -95,6 +95,20 @@ export default class App extends React.Component {
                 }</div>
             </div>
 
+        );
+    }
+}
+
+
+
+export default class DocumentManager extends React.Component {
+    state = {
+        
+    };
+
+    render() {
+        return (
+            <div>WEBDAV正在开发中</div>
         );
     }
 }

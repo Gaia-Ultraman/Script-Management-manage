@@ -31,7 +31,7 @@ export default defineConfig({
   // umi routes: https://umijs.org/zh/guide/router.html
   routes: [
     {
-      path: '/',
+      path: './',
       component: './index.js',
     },
   ],
@@ -79,6 +79,6 @@ export default defineConfig({
     basePath: './',
   },
   //在这里配置publicPath 生效，chainWebpack里面配置的会被覆盖？不生效
-  publicPath: REACT_APP_ENV === 'pre'?"./":'/',
+  publicPath: './',
   chainWebpack: webpackPlugin,
 });
