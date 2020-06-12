@@ -26,8 +26,7 @@ export default class Groups extends React.Component {
             retMsg: [""],
             runState: [""],
             msgType: [""]
-        }
-
+        },
     }
     //选择了分组，回调
     handleSelct = (value) => {
@@ -86,7 +85,15 @@ export default class Groups extends React.Component {
         if (type == 1) {
             result = setGroup({ name, type, addRegs, deleteRegs, })
         } else {
-            result = setGroup({ name, type, data: devices.filter(v => v.checked).map(v => v.id) })
+            //如果是编辑以前的，设备不会覆盖，会合并一起
+            let tempData = [], oldData = [], checkedData = devices.filter(v => v.checked).map(v => v.id);
+            if (getGroup().filter(v => { if (v.name == name) { oldData = v.data; return true } else { return false } }).length) {
+                tempData = [...new Set(checkedData.concat(oldData))]
+            } else {
+                tempData = checkedData
+            }
+            debugger
+            result = setGroup({ name, type, data: tempData })
         }
         this.showModal()
         if (result) {
